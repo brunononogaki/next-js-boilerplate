@@ -310,7 +310,7 @@ describe("PATCH to /api/v1/activations/[token_id]", () => {
 });
 ```
 
-## Bloqueando o endpoint `/users`
+## Bloqueando o endpoint POST `/users`
 
 Para bloquear o endpoint de criação de usuários, limitando apenas para quem tiver a feature `create:user`, não tem segredo nenhum:
 
@@ -402,6 +402,153 @@ Portanto, podemos criar mais um test no `users/post.test.js` cobrindo esse caso 
       });
     });
   });
+```
+
+## Bloqueando o endpoint PATCH `/users`
+
+Agora vamos limitar também o `PATCH` de usuários para quem tem a feature `update:user`, o que mais pra frente vai nos abrir um outro problema: "o usuário A pode atualizar dados do usuário B?". Claro que não pode, mas vamos fazer isso mais pra frente. Por enquanto, vamos proteger a rota de `PATCH` com essa feature:
+
+```javascript title="./pages/api/v1/users/[username]/index.js"
+...
+router.use(controller.injectAnonymousOrUser);
+router.patch(controller.canRequest("update:user"), patchHandler);
+...
+```
+
+Com isso, os testes que haviamos criado irão falhar, porque estávamos testando um usuário anônimo fazendo alterações em outros usuários. Portanto, vamos arrumar os testes, pois agora esperamos que os usuários anônimos recebam um `403 Forbidden`, enquanto usuários autenticados consigam realizar a operação.
+
+Criaremos então um novo bloco de testes para usuários anônimos apenas com isso:
+```javascript title="./tests/integration/api/v1/users/[username]/patch.test.js"
+describe("PATCH to /api/v1/users/[username]", () => {
+  describe("Anonymous user", () => {
+    test("With unique username", async () => {
+      await orchestrator.createUser({
+        username: "UniqueEmail1",
+      });
+
+      const userToBeUpdated = {
+        email: "uniqueemail2@email.com",
+      };
+
+      const responseUpdate = await fetch(
+        "http://localhost:3000/api/v1/users/UniqueEmail1",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userToBeUpdated),
+        },
+      );
+
+      expect(responseUpdate.status).toBe(403);
+
+      const responseUpdateBody = await responseUpdate.json();
+
+      expect(responseUpdateBody).toEqual({
+        "action": "Verifique se o seu usuário possui a feature: \"update:user\"",
+        "message": "Você não possui permissão para executar esta ação.",
+        "name": "ForbiddenError",
+        "status_code": 403,
+      });
+    });
+  });
+```
+
+Agora o teste de usuário anônimo vai passar, porque estamos justamente recebendo o 403. Porém, os testes que tínhamos criado antes agora serão com um usuário default, mas precisamos ajustá-los para que eles façam a autenticação depois de serem criados. Então para cada teste, adicionaremos isso:
+
+```javascript
+const createdUser = await orchestrator.createUser(); // note que dependendo do teste, precisa passar o parâmetro especifico de email, username, etc
+const activatedUser = await orchestrator.activateUser(createdUser);
+const sessionObject = await orchestrator.createSession(activatedUser.id);
+```
+
+E nas requisições que o teste faz, precisamos mandar o Cookie:
+
+```javascript
+const response = await fetch(
+  "http://localhost:3000/api/v1/users/usuarionaoexiste",
+  {
+    method: "PATCH",
+    headers: {
+      Cookie: `session_id=${sessionObject.token}`,
+    },
+  },
+);
+```
+
+E finalmente, para o teste passar, precisamos ir lá no model `activation`, e adicionar a feature `update:user` para os usuários ativados:
+
+```javascript title="./models/activation.js" hl_lines="14"
+async function activateUserByUserId(userId) {
+  const userToActivate = await user.findOneById(userId);
+
+  if (!authorization.can(userToActivate, "read:activation_token")) {
+    throw new ForbiddenError({
+      message: "Você não pode mais utilizar tokens de ativação",
+      action: "Entre em contato com o suporte.",
+    });
+  }
+
+  const activatedUser = await user.setFeatures(userId, [
+    "create:session",
+    "read:session",
+    "update:user", //<= Adicionando a feature
+  ]);
+  return activatedUser;
+}
+```
+
+!!! warning
+
+    Alguns testes começarão a falhar porque não estávamos esperando o `update:user` na lista de features, então tem que arrumar um a um.
+
+Esse é um exemplo de teste corrigido:
+
+```javascript title="./tests/integration/api/v1/users/[username]/patch.test.js"
+    test("With unique username", async () => {
+      const createdUser = await orchestrator.createUser({
+        username: "UniqueUsername1",
+      });
+      const activatedUser = await orchestrator.activateUser(createdUser);
+      const sessionObject = await orchestrator.createSession(activatedUser.id);
+
+      const userToBeUpdated = {
+        email: "uniqueusername2@email.com",
+      };
+
+      const responseUpdate = await fetch(
+        "http://localhost:3000/api/v1/users/UniqueUsername1",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Cookie: `session_id=${sessionObject.token}`,
+          },
+          body: JSON.stringify(userToBeUpdated),
+        },
+      );
+
+      expect(responseUpdate.status).toBe(200);
+
+      const responseUpdateBody = await responseUpdate.json();
+
+      expect(responseUpdateBody).toEqual({
+        id: responseUpdateBody.id,
+        username: "UniqueUsername1",
+        email: "uniqueusername2@email.com",
+        features: ["create:session", "read:session", "update:user"],
+        password: responseUpdateBody.password,
+        created_at: responseUpdateBody.created_at,
+        updated_at: responseUpdateBody.updated_at,
+      });
+
+      expect(uuidVersion(responseUpdateBody.id)).toBe(4);
+      expect(Date.parse(responseUpdateBody.created_at)).not.toBeNaN();
+      expect(Date.parse(responseUpdateBody.created_at)).not.toBeNaN();
+      expect(
+        responseUpdateBody.updated_at > responseUpdateBody.created_at,
+      ).toBe(true);
 ```
 
 !!! success
