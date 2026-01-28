@@ -220,12 +220,13 @@ describe("PATCH to /api/v1/users/[username]", () => {
       const responseUpdateBody = await responseUpdate.json();
 
       expect(responseUpdateBody).toEqual({
-        "action": "Verifique se você possui a feature necessária para atualizar outro usuário.",
-        "message": "Você não possui permissão para atualizar outro usuário.",
-        "name": "ForbiddenError",
-        "status_code": 403,
+        action:
+          "Verifique se você possui a feature necessária para atualizar outro usuário.",
+        message: "Você não possui permissão para atualizar outro usuário.",
+        name: "ForbiddenError",
+        status_code: 403,
       });
-    });    
+    });
     test("With unique email", async () => {
       const createdUser = await orchestrator.createUser({
         email: "uniqueuser1@email.com",
