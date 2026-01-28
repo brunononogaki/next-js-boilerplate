@@ -56,6 +56,7 @@ try {
 ```
 
 Aí o log ficará assim:
+
 ```
 ReferenceError: É necessário enviar um 'input'
     at salvarUsuario (/Users/bruno.nonogaki/Documents/@DEV/curso.dev-study-notes-mkdocs/test.js:3:11)
@@ -70,7 +71,6 @@ ReferenceError: É necessário enviar um 'input'
 
 ## TypeError
 
-
 ```javascript
 function salvarUsuario(input) {
   if (!input) {
@@ -78,7 +78,7 @@ function salvarUsuario(input) {
   }
 
   if (!input.name) {
-    throw new TypeError("É necessário enviar o 'name'")
+    throw new TypeError("É necessário enviar o 'name'");
   }
 }
 
@@ -93,6 +93,7 @@ try {
 ```
 
 Aí o log ficará assim:
+
 ```
 ReferenceError: Preencha o seu nome completo
     at salvarUsuario (/Users/bruno.nonogaki/Documents/@DEV/curso.dev-study-notes-mkdocs/test.js:7:11)
@@ -111,9 +112,9 @@ Para criar erros customizados, criaremos uma nova classe chamada `ValidationErro
 
 ```javascript
 class ValidationError extends Error {
-    constructor(message) {
-        super(message);
-    }
+  constructor(message) {
+    super(message);
+  }
 }
 
 function salvarUsuario(input) {
@@ -122,7 +123,7 @@ function salvarUsuario(input) {
   }
 
   if (!input.name) {
-    throw new ValidationError("É necessário enviar o 'name'")
+    throw new ValidationError("É necessário enviar o 'name'");
   }
 }
 
@@ -137,6 +138,7 @@ try {
 ```
 
 O output desse erro será:
+
 ```
 ValidationError: É necessário enviar o 'name'
     at salvarUsuario (/Users/bruno.nonogaki/Documents/@DEV/curso.dev-study-notes-mkdocs/test.js:13:11)
@@ -147,19 +149,21 @@ ValidationError: É necessário enviar o 'name'
     at Module._load (node:internal/modules/cjs/loader:1019:12)
     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
     at node:internal/main/run_main_module:28:49
-```    
+```
 
 Mas a grande vantagem do erro customizado, é que não precisamos ficar presos à propriedade `message`. Podemos criar as propriedades que quisermos! Por exemplo:
+
 ```javascript hl_lines = "4"
 class ValidationError extends Error {
-    constructor(message) {
-        super(message);
-        this.statusCode = 400;
-    }
+  constructor(message) {
+    super(message);
+    this.statusCode = 400;
+  }
 }
 ```
 
 E agora o log será assim:
+
 ```hl_lines = "10"
 ValidationError: É necessário enviar o 'name'
     at salvarUsuario (/Users/bruno.nonogaki/Documents/@DEV/curso.dev-study-notes-mkdocs/test.js:14:11)
@@ -183,7 +187,61 @@ ValidationError: É necessário enviar o 'name'
 Para forçar um erro no projeto, vamos mudar a senha do banco de dados no nosso arquivo `.env.development` Ao fazer isso e acessarmos a página `api/v1/status`, repare o erro que está retornando:
 
 ```html
-<!DOCTYPE html><html><head><style data-next-hide-fouc="true">body{display:none}</style><noscript data-next-hide-fouc="true"><style>body{display:block}</style></noscript><meta charSet="utf-8"/><meta name="viewport" content="width=device-width"/><meta name="next-head-count" content="2"/><noscript data-n-css=""></noscript><script defer="" nomodule="" src="/_next/static/chunks/polyfills.js"></script><script src="/_next/static/chunks/webpack.js" defer=""></script><script src="/_next/static/chunks/main.js" defer=""></script><script src="/_next/static/chunks/pages/_app.js" defer=""></script><script src="/_next/static/chunks/pages/_error.js" defer=""></script><script src="/_next/static/development/_buildManifest.js" defer=""></script><script src="/_next/static/development/_ssgManifest.js" defer=""></script><noscript id="__next_css__DO_NOT_USE__"></noscript></head><body><div id="__next"></div><script src="/_next/static/chunks/react-refresh.js"></script><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"statusCode":500}},"page":"/_error","query":{},"buildId":"development","isFallback":false,"err":{"name":"TypeError","source":"server","message":"Cannot read properties of undefined (reading 'end')","stack":"TypeError: Cannot read properties of undefined (reading 'end')\n    at Object.query (webpack-internal:///(api)/./infra/database.js:18:22)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async get_postgres_version (webpack-internal:///(api)/./pages/api/v1/status.js:8:20)\n    at async status (webpack-internal:///(api)/./pages/api/v1/status.js:32:26)\n    at async K (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/compiled/next-server/pages-api.runtime.dev.js:21:2871)\n    at async U.render (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/compiled/next-server/pages-api.runtime.dev.js:21:3955)\n    at async DevServer.runApi (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/next-server.js:600:9)\n    at async NextNodeServer.handleCatchallRenderRequest (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/next-server.js:269:37)\n    at async DevServer.handleRequestImpl (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/base-server.js:816:17)\n    at async /Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/dev/next-dev-server.js:339:20\n    at async Span.traceAsyncFn (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/trace/trace.js:154:20)\n    at async DevServer.handleRequest (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/dev/next-dev-server.js:336:24)\n    at async invokeRender (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/lib/router-server.js:174:21)\n    at async handleRequest (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/lib/router-server.js:353:24)\n    at async requestHandlerImpl (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/lib/router-server.js:377:13)"},"gip":true,"scriptLoader":[]}</script></body></html>%                                                  
+<!doctype html>
+<html>
+  <head>
+    <style data-next-hide-fouc="true">
+      body {
+        display: none;
+      }
+    </style>
+    <noscript data-next-hide-fouc="true"
+      ><style>
+        body {
+          display: block;
+        }
+      </style></noscript
+    >
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="next-head-count" content="2" />
+    <noscript data-n-css=""></noscript>
+    <script
+      defer=""
+      nomodule=""
+      src="/_next/static/chunks/polyfills.js"
+    ></script>
+    <script src="/_next/static/chunks/webpack.js" defer=""></script>
+    <script src="/_next/static/chunks/main.js" defer=""></script>
+    <script src="/_next/static/chunks/pages/_app.js" defer=""></script>
+    <script src="/_next/static/chunks/pages/_error.js" defer=""></script>
+    <script src="/_next/static/development/_buildManifest.js" defer=""></script>
+    <script src="/_next/static/development/_ssgManifest.js" defer=""></script>
+    <noscript id="__next_css__DO_NOT_USE__"></noscript>
+  </head>
+  <body>
+    <div id="__next"></div>
+    <script src="/_next/static/chunks/react-refresh.js"></script>
+    <script id="__NEXT_DATA__" type="application/json">
+      {
+        "props": { "pageProps": { "statusCode": 500 } },
+        "page": "/_error",
+        "query": {},
+        "buildId": "development",
+        "isFallback": false,
+        "err": {
+          "name": "TypeError",
+          "source": "server",
+          "message": "Cannot read properties of undefined (reading 'end')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'end')\n    at Object.query (webpack-internal:///(api)/./infra/database.js:18:22)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async get_postgres_version (webpack-internal:///(api)/./pages/api/v1/status.js:8:20)\n    at async status (webpack-internal:///(api)/./pages/api/v1/status.js:32:26)\n    at async K (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/compiled/next-server/pages-api.runtime.dev.js:21:2871)\n    at async U.render (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/compiled/next-server/pages-api.runtime.dev.js:21:3955)\n    at async DevServer.runApi (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/next-server.js:600:9)\n    at async NextNodeServer.handleCatchallRenderRequest (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/next-server.js:269:37)\n    at async DevServer.handleRequestImpl (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/base-server.js:816:17)\n    at async /Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/dev/next-dev-server.js:339:20\n    at async Span.traceAsyncFn (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/trace/trace.js:154:20)\n    at async DevServer.handleRequest (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/dev/next-dev-server.js:336:24)\n    at async invokeRender (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/lib/router-server.js:174:21)\n    at async handleRequest (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/lib/router-server.js:353:24)\n    at async requestHandlerImpl (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/next/dist/server/lib/router-server.js:377:13)"
+        },
+        "gip": true,
+        "scriptLoader": []
+      }
+    </script>
+  </body>
+</html>
+%
 ```
 
 Se acessarmos via browser, é isso que vemos:
@@ -194,6 +252,7 @@ Se acessarmos via browser, é isso que vemos:
     Esse tipo de erro, apesar de ficar bonito na interface web, não é nada amigável para uma API, pois o consumidor dela não vai conseguir tratar os dados programatiamente. O ideal é que o retorno seja um JSON padronizado, que é o que faremos a seguir.
 
 E na console do servidor, o erro é assim:
+
 ```bash
 error: password authentication failed for user "devuser1"
     at Parser.parseErrorMessage (/Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/node_modules/pg-protocol/dist/parser.js:285:98)
@@ -253,6 +312,7 @@ error: password authentication failed for user "devuser1"
 ```
 
 Veja que ao quebrar a conexão com o banco, dois erros acontecem. Um é dentro do `database.js`, porque o bloco `finally` tenta fechar um client que está undefined porque caímos dentro do `catch`:
+
 ```javascript title="./infra/database.js" hl_lines="11"
 async function query(queryObject) {
   let client;
@@ -271,6 +331,7 @@ async function query(queryObject) {
 ```
 
 E na nossa página de `status.js`, como não conseguimos rodar a query, essa função vai dar um erro que não estamos tratando:
+
 ```javascript title="./pages/api/v1/status.js"
 export default async function status(request, response) {
   const updatedAt = new Date().toISOString();
@@ -288,6 +349,7 @@ export default async function status(request, response) {
 ```
 
 Vamos então colocar um try/catch nessa função para podermos capturar esse erro:
+
 ```javascript title="./pages/api/v1/status.js" hl_lines="2 14-17"
 export default async function status(request, response) {
   try {
@@ -310,18 +372,21 @@ export default async function status(request, response) {
 ```
 
 Boa, agora quando fizermos um `GET` novamente nessa API, vamos receber apenas esse JSON, e não aquele HTML maluco:
+
 ```json
-{"error":"Internal Server Error"}
-``` 
+{ "error": "Internal Server Error" }
+```
 
 E para resolver o erro no nosso `database.js`, é só a gente arrumar o bloco de `finally`, fazendo com que ele faça o `end` da conexão apenas se o client estiver definido, tipo assim:
+
 ```javascript
-if (client){
+if (client) {
   await client.end();
 }
 ```
 
 Mas para ficar mais bonito, podemos usar essa sintaxe, com `client?.end()`:
+
 ```javascript title="./infra/database.js" hl_lines="12"
 async function query(queryObject) {
   let client;
@@ -386,7 +451,6 @@ export class InternalServerError extends Error {
 
     O parâmetro `cause` é uma forma padronizada (ECMAScript 2022) de encadear erros, mantendo a raiz do problema original. Quando você passa `cause: err`, está preservando o erro original dentro do novo erro customizado. Isso é útil para logging e debugging, pois você pode acessar `publicErrorObject.cause` para ver o erro original que causou o problema, enquanto retorna uma mensagem mais amigável ao cliente.
 
-    
 Agora vamos importar essa classe no arquivo `status.js` e retornar esse objeto no catch da função `status`. O arquivo completo atual vai ficar assim:
 
 ```javascript title="./pages/api/v1/status.js" hl_lines="2 35-43"
@@ -437,6 +501,7 @@ export default async function status(request, response) {
 ```
 
 Vamos testar agora como vai ficar o erro quando chamamos a API `api/v1/status`:
+
 ```json
 {
   "name": "InternalServerError",
@@ -447,6 +512,7 @@ Vamos testar agora como vai ficar o erro quando chamamos a API `api/v1/status`:
 ```
 
 E o log no nosso servidor:
+
 ```bash hl_lines="1 31-32 47-48"
  Erro dentro do catch do database.js:
 error: password authentication failed for user "devuser1"

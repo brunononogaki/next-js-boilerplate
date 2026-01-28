@@ -19,7 +19,9 @@ lts/hydrogen
 ```
 
 ## Criando o projeto e instalando dependências
+
 Para criar o projeto, faremos:
+
 ```bash
 npm init
 # Defina um nome de projeto, author, description, ou deixe tudo default
@@ -29,7 +31,8 @@ npm install react@18.2.0
 npm install react-dom@18.2.0
 ```
 
-Isso vai criar um arquivo ``package.json`` assim:
+Isso vai criar um arquivo `package.json` assim:
+
 ```javascript
 {
   "name": "teste_next",
@@ -50,6 +53,7 @@ Isso vai criar um arquivo ``package.json`` assim:
 ```
 
 Vamos adicionar o nosso primeiro script e apagar esse de "test" que ele criou automaticamente
+
 ```javascript
 "scripts": {
   "dev": "next dev",
@@ -57,16 +61,17 @@ Vamos adicionar o nosso primeiro script e apagar esse de "test" que ele criou au
 
 ```
 
-Agora vamos criar um arquivo ``index.js`` em uma nova pasta chamada /pages/:
+Agora vamos criar um arquivo `index.js` em uma nova pasta chamada /pages/:
 
 ```javascript title="/pages/index.js"
 function Home() {
-    return <h1>Teste</h1>
+  return <h1>Teste</h1>;
 }
-export default Home
+export default Home;
 ```
 
 Agora vamos iniciar o servidor
+
 ```bash
 npm run dev
 > teste_next@1.0.0 dev
@@ -77,7 +82,6 @@ event - compiled client and server successfully in 589 ms (149 modules)
 ```
 
 Certo! Nosso servidor já está no ar! 😎
-
 
 ## Definindo estrutura de pastas
 

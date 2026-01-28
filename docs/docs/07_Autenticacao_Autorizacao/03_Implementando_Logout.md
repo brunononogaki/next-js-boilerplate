@@ -94,7 +94,7 @@ async function deleteHandler(request, response) {
   const sessionToken = request.cookies.session_id;
 
   const sessionObject = await session.findOneValidByToken(sessionToken);
-  
+
   return response.status(200).json(expiredSession);
 }
 ```
@@ -171,9 +171,9 @@ async function deleteHandler(request, response) {
   const sessionToken = request.cookies.session_id;
 
   const sessionObject = await session.findOneValidByToken(sessionToken);
-  
+
   const expiredSession = await session.expireById(sessionObject.id);
-  
+
   return response.status(200).json(expiredSession);
 }
 ```
@@ -212,29 +212,30 @@ Então vamos testar mais essa situação dentro do caso de sucesso:
 
 ```javascript title="./tests/integration/api/v1/sessions/delete.test.js"
 // ...
-      // Set-Cookie assertions
-      const parsedSetCookie = setCookieParser(response, {
-        map: true,
-      });
-      expect(parsedSetCookie.session_id).toEqual({
-        name: "session_id",
-        value: "invalid",
-        maxAge: -1,
-        path: "/",
-        httpOnly: true,
-      });
+// Set-Cookie assertions
+const parsedSetCookie = setCookieParser(response, {
+  map: true,
+});
+expect(parsedSetCookie.session_id).toEqual({
+  name: "session_id",
+  value: "invalid",
+  maxAge: -1,
+  path: "/",
+  httpOnly: true,
+});
 ```
 
 E bora implementar isso:
+
 ```javascript title="./pages/api/v1/sessions/index.js" hl_lines="7"
 async function deleteHandler(request, response) {
   const sessionToken = request.cookies.session_id;
 
   const sessionObject = await session.findOneValidByToken(sessionToken);
-  
+
   const expiredSession = await session.expireById(sessionObject.id);
   controller.clearSessionCookie(response);
-  
+
   return response.status(200).json(expiredSession);
 }
 ```
@@ -260,20 +261,20 @@ Agora podemos incluir mais um teste. Depois de enviarmos o `DELETE`, e validarmo
 
 ```javascript title="./tests/integration/api/v1/sessions/delete.test.js"
 // ...
-      // Double Check
-      const doubleCheckResponse = await fetch("http://localhost:3000/api/v1/user", {
-        headers: {
-          Cookie: `session_id=${sessionObject.token}`,
-        },
-      });      
-      expect(doubleCheckResponse.status).toBe(401);
-      const doubleCheckResponseBody = await doubleCheckResponse.json();
-      expect(doubleCheckResponseBody).toEqual({
-        name: "UnauthorizedError",
-        message: "Usuário não possui sessão ativa.",
-        action: "Verifique se este usuário está logado e tente novamente.",
-        status_code: 401,
-      });     
+// Double Check
+const doubleCheckResponse = await fetch("http://localhost:3000/api/v1/user", {
+  headers: {
+    Cookie: `session_id=${sessionObject.token}`,
+  },
+});
+expect(doubleCheckResponse.status).toBe(401);
+const doubleCheckResponseBody = await doubleCheckResponse.json();
+expect(doubleCheckResponseBody).toEqual({
+  name: "UnauthorizedError",
+  message: "Usuário não possui sessão ativa.",
+  action: "Verifique se este usuário está logado e tente novamente.",
+  status_code: 401,
+});
 ```
 
 !!! success

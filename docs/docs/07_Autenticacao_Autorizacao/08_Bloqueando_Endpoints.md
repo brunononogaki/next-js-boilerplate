@@ -337,6 +337,7 @@ async function postHandler(request, response) {
 ```
 
 Só isso já basta, porque o nosso código já estava atribuindo essa permissão para os usuários anônimos:
+
 ```javascript title="./infra/controller.js"
 async function injectAnonymousUser(request) {
   const anonymousUserObject = {
@@ -351,6 +352,7 @@ async function injectAnonymousUser(request) {
 ```
 
 Mas depois que o usuário faz a ativação, ele perde essa feature:
+
 ```javascript title="./models/activation.js" hl_lines="11-14"
 async function activateUserByUserId(userId) {
   const userToActivate = await user.findOneById(userId);
@@ -418,6 +420,7 @@ router.patch(controller.canRequest("update:user"), patchHandler);
 Com isso, os testes que haviamos criado irão falhar, porque estávamos testando um usuário anônimo fazendo alterações em outros usuários. Portanto, vamos arrumar os testes, pois agora esperamos que os usuários anônimos recebam um `403 Forbidden`, enquanto usuários autenticados consigam realizar a operação.
 
 Criaremos então um novo bloco de testes para usuários anônimos apenas com isso:
+
 ```javascript title="./tests/integration/api/v1/users/[username]/patch.test.js"
 describe("PATCH to /api/v1/users/[username]", () => {
   describe("Anonymous user", () => {

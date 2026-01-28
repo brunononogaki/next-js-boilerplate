@@ -124,7 +124,7 @@ describe("Use case: Registration Flow (all successful)", () => {
           email: "registration.flow@email.com",
           password: "senha123",
         }),
-      }
+      },
     );
     expect(createUserResponse.status).toBe(201);
 
@@ -153,13 +153,13 @@ Agora vamos nos focar no teste `Receive activation email`, que ainda está em br
 
 ```javascript title="./tests/integration/_use-cases/registration-flow.test.js"
 // ...
-  test("Receive activation email", async () => {
-    const lastEmail = await orchestrator.getLastEmail();
-    expect(lastEmail.sender).toBe("<contato@meubonsai.app>");
-    expect(lastEmail.recipients[0]).toBe("<registration.flow@email.com>");
-    expect(lastEmail.subject).toBe("Ative seu cadastro no MeuBonsai.App");
-    expect(lastEmail.text).toContain("RegistrationFlow")
-  });
+test("Receive activation email", async () => {
+  const lastEmail = await orchestrator.getLastEmail();
+  expect(lastEmail.sender).toBe("<contato@meubonsai.app>");
+  expect(lastEmail.recipients[0]).toBe("<registration.flow@email.com>");
+  expect(lastEmail.subject).toBe("Ative seu cadastro no MeuBonsai.App");
+  expect(lastEmail.text).toContain("RegistrationFlow");
+});
 ```
 
 Certamente esse teste vai falhar, porque ainda não estamos enviando e-mail nenhum! Vamos programar isso! Mas... onde podemos colocar essa lógica de envio de e-mail após a criação de um usuário. Poderíamos colocar dentro do `model` user, fazendo que sempre que eu crie um usuário na base o sistema envie um e-mail; ou daria para colocar dentro do controller `/users`, após a chamada do método do `create()`. Como temos casos de testes automatizados chamando direto o model para criar um usuário, e como nesses casos a gente não precisa enviaar e-mail nenhum, pois queremos simplesmete que um usuário seja criado na base, optaremos por criar essa chamada dentro do controller `/users`.
@@ -187,9 +187,9 @@ async function postHandler(request, response) {
 Aqui a gente especulou um novo model chamado `activation`, que vai ter essa lógica de gerar um token, enviar e-mail, etc. Vamos criá-lo e já criar esse método `sendEmailToUser`:
 
 ```javascript title="./models/activation.js"
-import email from "infra/email.js"
+import email from "infra/email.js";
 
-async function sendEmailToUser(user) { 
+async function sendEmailToUser(user) {
   await email.send({
     from: "Contato <contato@meubonsai.app>",
     to: user.email,
@@ -202,33 +202,34 @@ Atenciosamente,
 
 Equipe MeuBonsai.App  
     `,
-  })
+  });
 }
 
 const activation = {
-  sendEmailToUser
-}
+  sendEmailToUser,
+};
 
-export default activation
+export default activation;
 ```
 
 !!! success
 
     Show, já estamos enviando o e-mail de ativação, e os testes estão passando! Mas ainda falta gerar um token e um link de verdade para o usuário poder ativar sua conta. Faremos isso em seguida!
 
-
 ## Criando o Token de Ativação
 
 Agora vamos começar a gerar dinamicamente o Token de ativação para ser enviado para o usuário.
 
 ### Criando a tabela no banco de dados
+
 Pecisaremos persistir esse token em algum lugar, e ter o controle se ele já foi usado ou não. Por isso, vamos criar uma nova tabela na base de dados através de uma migration
 
 ```bash
-npm run migrations:create create user activation tokens 
+npm run migrations:create create user activation tokens
 ```
 
 E definir esse arquivo de migrations:
+
 ```javascript title="./infra/migration/1768559591990_create-user-activation-tokens.js"
 exports.up = (pgm) => {
   pgm.createTable("user_activation_tokens", {
@@ -244,7 +245,7 @@ exports.up = (pgm) => {
     used_at: {
       type: "timestamptz",
       notNull: false,
-    },   
+    },
     expires_at: {
       type: "timestamptz",
       notNull: true,
@@ -266,13 +267,14 @@ exports.down = false;
 ```
 
 ### Criando o método de criação do token e enviando o token por e-mail
+
 Agora que já temos a tabela criada, podemos criar o token exatamente da mesma forma que no passado criamos as sessões, com a diferença que ele terá uma validade de 15 minutos ao invés de 30 dias. Além disso, como definimos que o token será o próprio ID da coluna, que é gerado dinamicamente pelo Postgres, nem precisamos nos preocupar em gerar um ID randômico pelo código. De resto, é meio que cópia do que temos no método de `create()` de `sessions.js`:
 
 ```javascript title="./models/activation.js"
 import email from "infra/email.js";
 import database from "infra/database.js";
 
-const EXPIRATION_IN_MILLISECONDS = 60 * 15 * 1000 // 15 minutes
+const EXPIRATION_IN_MILLISECONDS = 60 * 15 * 1000; // 15 minutes
 
 async function create(userId) {
   const expiresAt = new Date(Date.now() + EXPIRATION_IN_MILLISECONDS);
@@ -297,7 +299,7 @@ async function create(userId) {
 
 const activation = {
   sendEmailToUser,
-  create
+  create,
 };
 
 export default activation;
@@ -330,9 +332,9 @@ async function postHandler(request, response) {
 Agora vamos adicionar o token no link:
 
 ```javascript title="./models/activation.js"
-import email from "infra/email.js"
+import email from "infra/email.js";
 
-async function sendEmailToUser(user, activationToken) { 
+async function sendEmailToUser(user, activationToken) {
   await email.send({
     from: "Contato <contato@meubonsai.app>",
     to: user.email,
@@ -345,14 +347,14 @@ Atenciosamente,
 
 Equipe MeuBonsai.App  
     `,
-  })
+  });
 }
 
 const activation = {
-  sendEmailToUser
-}
+  sendEmailToUser,
+};
 
-export default activation
+export default activation;
 ```
 
 !!! tip
@@ -381,13 +383,13 @@ export default activation
 
     Aí basta importarmos esse módulo e substituir a URL hard-coded por `webserver.getOrigin()`
 
-
 ### Fazendo a validação do Token nos testes
 
 Agora precisamos testar esse fluxo até agora. A ideia desse teste é:
-* Extrair o token que vem no link do e-mail
-* Procura esse token no banco de dados para ver se ele é válido (não expirado e nào utilizado)
-* Ver se o user id atrelado a esse token é o mesmo id que fez o cadastro
+
+- Extrair o token que vem no link do e-mail
+- Procura esse token no banco de dados para ver se ele é válido (não expirado e nào utilizado)
+- Ver se o user id atrelado a esse token é o mesmo id que fez o cadastro
 
 Primeiramente, vamos criar um método no orchestrator que consegue extrair um UUID de um texto:
 
@@ -466,6 +468,7 @@ Agora, para concluir o fluxo de ativação, o usuário deverá enviar um `PATCH`
 ### Criando os testes
 
 Agora vamos atacar os testes de Activation account que vai fazer tudo isso que comentamos acima:
+
 ```javascript title="./tests/integration/_use-cases/registration-flow.test.js"
 describe("Use case: Registration Flow (all successful)", () => {
   let createUserResponseBody;
@@ -526,6 +529,7 @@ O controller então vai validar se o token existe e é válido, marcá-lo como u
 ### Criando os métodos nos models
 
 Agora no model `activation.js`, vamos criar o método `markTokenAsUsed()`, que recebe o ID do token e altera o campo used_at dele:
+
 ```javascript title="./models/activation.js"
 async function markTokenAsUsed(activationTokenId) {
   const updatedToken = await runUpdateQuery(activationTokenId);
@@ -594,7 +598,7 @@ async function setFeatures(userId, features) {
 }
 ```
 
-Tudo sem segredo nenhum, é tudo coisa que já fizemos em outros endpoints! 
+Tudo sem segredo nenhum, é tudo coisa que já fizemos em outros endpoints!
 
 !!! success
 

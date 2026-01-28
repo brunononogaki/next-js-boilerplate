@@ -1,9 +1,10 @@
 # Integrando um Banco de Dados Local
 
-Agora vamos subir um Banco de Dados Postgres para integrar com o nosso back-end. 
+Agora vamos subir um Banco de Dados Postgres para integrar com o nosso back-end.
 
 ## Criando um .env
-Vamos criar um ``.env`` para definir o acesso ao banco. O Next.JS já carrega os .env automaticamente nas variáveis de ambiente, que podem ser lidas através do ``process.env.NOME_DA_VARIAVEL``. Como estamos no ambiente de desenvolvimento, vamos criar o arquivo chamado ``.env.development``.
+
+Vamos criar um `.env` para definir o acesso ao banco. O Next.JS já carrega os .env automaticamente nas variáveis de ambiente, que podem ser lidas através do `process.env.NOME_DA_VARIAVEL`. Como estamos no ambiente de desenvolvimento, vamos criar o arquivo chamado `.env.development`.
 
 Quando for para produção na Vercel, esses valores serão definidos nas envs da própria Vercel
 
@@ -16,7 +17,8 @@ POSTGRES_DB=postgres
 ```
 
 ## Criando um docker-compose
-Agora vamos criar um arquivo ``compose.yml`` para subir o nosso PostgreSQL com Docker Compose. Já vamos aproveitar e criar esse arquivo na pasta /infra/
+
+Agora vamos criar um arquivo `compose.yml` para subir o nosso PostgreSQL com Docker Compose. Já vamos aproveitar e criar esse arquivo na pasta /infra/
 
 ```yaml title="/infra/compose.yaml"
 services:
@@ -27,59 +29,63 @@ services:
       - ../.env
     ports:
       - "5432:5432"
-    restart: unless-stopped  
+    restart: unless-stopped
 ```
 
 Note que como é um Database de Desenvolvimento, eu não preciso salvar o volume dele, porque toda vez que eu for testar, eu quero ter um banco de dados zerado!
 
 ## Subir o container do PostgreSQL
+
 Para subir o container com docker compose:
+
 ```bash
 docker compose --file infra/compose.yaml up -d --force-recreate
 ```
 
-Para testar a conexão local, podemos usar o ``psql``
+Para testar a conexão local, podemos usar o `psql`
+
 ```bash
 psql -h localhost -p 5432 -U dbadmin -d postgres
 ```
 
 ## Integrando o Back com o Banco de Dados
 
-Para integrar com o banco de dados, vamos usar o ``pg`` do npm
+Para integrar com o banco de dados, vamos usar o `pg` do npm
+
 ```bash
 npm install pg@8.11.3
 ```
 
-E criaremos um arquivo ``infra/database.js``.
+E criaremos um arquivo `infra/database.js`.
 
 ```javascript title="/infra/database.js"
-import {Client} from "pg";
+import { Client } from "pg";
 
 async function query(queryObject) {
-    const client = new Client({
-        host: process.env.DATABASE_HOST,
-        port: process.env.DATABASE_PORT,
-        user: process.env.POSTGRES_USER,
-        password: process.env.POSTGRES_PASSWORD,
-        database: process.env.POSTGRES_DB,
-        // Precisamos definir o ssl como True no ambiente de produção,
-        // pois usaremos um serviço de DB online        
-        ssl: process.env.NODE_ENV === 'production' ? true : false     
-    });
-    await client.connect();
-    try {
-        const result = await client.query(queryObject);
-        return result;
-    } catch (err) {
-        console.log(err)
-    } finally {
-        await client.end();
-    }
+  const client = new Client({
+    host: process.env.DATABASE_HOST,
+    port: process.env.DATABASE_PORT,
+    user: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
+    database: process.env.POSTGRES_DB,
+    // Precisamos definir o ssl como True no ambiente de produção,
+    // pois usaremos um serviço de DB online
+    ssl: process.env.NODE_ENV === "production" ? true : false,
+  });
+  await client.connect();
+  try {
+    const result = await client.query(queryObject);
+    return result;
+  } catch (err) {
+    console.log(err);
+  } finally {
+    await client.end();
+  }
 }
 
 export default {
-    query: query
-}
+  query: query,
+};
 ```
 
 Uma forma mais elegante de fazer é separar a conexão, para termos uma função que retorna uma instância conectada ao banco, que podemos utilizar mais pra frente em outros endpoints.
@@ -89,8 +95,8 @@ import { Client } from "pg";
 
 async function query(queryObject) {
   // precisamos definir client fora do try para que possa ser fechado no finally
-  let client; 
-    
+  let client;
+
   try {
     client = await getNewClient();
     const result = await client.query(queryObject);
@@ -121,12 +127,12 @@ async function getNewClient() {
 // Exportando as funções para poderem ser usadas de fora
 export default {
   query,
-  getNewClient,  
+  getNewClient,
 };
-
 ```
 
 ## Usando a conexão ao Banco de Dados na tela de status
+
 Agora vamos fazer a tela de status se conectar ao banco e rodar uma query genérica:
 
 ```javascript
@@ -140,9 +146,9 @@ export default async function status(request, response) {
 
 E confirme se a página continua retornando 200OK e se os testes estão passando.
 
-
 ## Criando scripts de inicalização
-Vamos agora alterar o ``package.json`` e criar scripts que sobem a nossa infra toda:
+
+Vamos agora alterar o `package.json` e criar scripts que sobem a nossa infra toda:
 
 ```javascript title="/package.json"
   "scripts": {
@@ -157,9 +163,10 @@ Vamos agora alterar o ``package.json`` e criar scripts que sobem a nossa infra t
   },
 ```
 
-Show! Agora é possível subir todo o nosso ambiente (container do Postgres + aplicação) com o comando ``npm run dev``! Coisa linda! 😎
+Show! Agora é possível subir todo o nosso ambiente (container do Postgres + aplicação) com o comando `npm run dev`! Coisa linda! 😎
 
 ## Retornando dados do banco
+
 Agora vamos retornar dados do Banco, como a versão e a quantidade de conexão que ele suporta:
 
 ```javascript
@@ -171,9 +178,7 @@ async function get_postgres_version() {
 }
 
 async function get_postgres_max_connections() {
-  const result = await database.query(
-    "SHOW max_connections",
-  );
+  const result = await database.query("SHOW max_connections");
   return parseInt(result.rows[0].max_connections);
 }
 
@@ -182,7 +187,7 @@ async function get_postgres_used_connections() {
   // `SELECT COUNT(*)::int FROM pg_stat_activity WHERE datname = '${process.env.POSTGRES_DB}';`
   const result = await database.query({
     text: "SELECT COUNT(*)::int FROM pg_stat_activity WHERE datname = $1;",
-    values: [process.env.POSTGRES_DB]
+    values: [process.env.POSTGRES_DB],
   });
   return result.rows[0].count;
 }
@@ -192,18 +197,18 @@ export default async function status(request, response) {
   response.status(200).json({
     updated_at: updatedAt,
     dependencies: {
-      database : {
+      database: {
         version: await get_postgres_version(),
         max_connections: await get_postgres_max_connections(),
         opened_connections: await get_postgres_used_connections(),
-      }
-    }
+      },
+    },
   });
 }
-
 ```
 
 E vamos rodar os testes para confirmar se está tudo certo:
+
 ```javascript
 describe("GET to /api/v1/status", () => {
   describe("Anonymous user", () => {
@@ -222,7 +227,6 @@ describe("GET to /api/v1/status", () => {
     });
   });
 });
-
 ```
 
 ## Proteção conta SQL Injection
@@ -230,15 +234,19 @@ describe("GET to /api/v1/status", () => {
 Se eu implementar a query dessa forma:
 
 ```javascript
-const result = await database.query(`SELECT COUNT(*)::int FROM pg_stat_activity WHERE datname = '${dbname}';`);
+const result = await database.query(
+  `SELECT COUNT(*)::int FROM pg_stat_activity WHERE datname = '${dbname}';`,
+);
 ```
 
 E chamar a API assim:
+
 ```javascript
 fetch("http://localhost:3000/api/v1/status?dbname='; SELECT pg_sleep(5); --");
 ```
 
 A query ficaria assim:
+
 ```sql
 SELECT COUNT(*)::int FROM pg_stat_activity WHERE datname = ';
 SELECT SELECT pg_sleep(5);
@@ -248,9 +256,10 @@ SELECT SELECT pg_sleep(5);
 Ou seja, ele vai passar no parâmetro dbame uma outra query, que fecha as aspas simples do dbname, e depois faz um sleep, mas poderia ser qualquer outra coisa. Isso é ataque de SQL Injection.
 
 Para resolver isso, basta fazer a query com parametros, assim:
+
 ```javascript
-  const result = await database.query({
-    text: "SELECT COUNT(*)::int FROM pg_stat_activity WHERE datname = $1;",
-    values: [process.env.POSTGRES_DB]
-  });
+const result = await database.query({
+  text: "SELECT COUNT(*)::int FROM pg_stat_activity WHERE datname = $1;",
+  values: [process.env.POSTGRES_DB],
+});
 ```

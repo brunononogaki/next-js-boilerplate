@@ -27,6 +27,7 @@ Para não causar problemas de versões das dependências do projeto, vamos prime
 ```
 
 Mas agora, vamos começar a ver as versões mais atualizadas de cada dependência e começar a atualizá-las. Dois comandos bons de verificar isso são o `npm outdated` e o `npm audit`.
+
 ```bash title="npm outdated"
 npm outdated
 
@@ -106,12 +107,12 @@ npx npm-check-updates -i
 Upgrading /Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/package.json
 [====================] 16/16 100%
 
-? Choose which packages to update › 
+? Choose which packages to update ›
   ↑/↓: Select a package
   Space: Toggle selection
   a: Toggle all
   Enter: Upgrade
- 
+
 ❯ ◉ concurrently             8.2.2  →   9.2.1
   ◉ dotenv                  16.4.4  →  17.2.3
   ◉ eslint                  8.57.0  →  9.39.1
@@ -125,9 +126,6 @@ Upgrading /Users/bruno.nonogaki/Documents/@DEV/meubonsai-app-v2/package.json
   ◉ react-dom               18.2.0  →  19.2.1
 ```
 
-
-
 !!! tip
 
     A forma mais fácil de resolver `peer dependencies` é remover o arquivo `package-lock.json` e a pasta `node_modules`, e rodar o `npm install` de novo.
-

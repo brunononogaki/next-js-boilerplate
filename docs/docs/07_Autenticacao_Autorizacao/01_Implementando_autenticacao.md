@@ -227,7 +227,7 @@ describe("POST to /api/v1/sessions", () => {
         message: "Dados de autenticação não conferem.",
         action: "Verifique se os dados enviados estão corretos.",
         status_code: 401,
-      });    
+      });
     });
   });
 });
@@ -342,7 +342,7 @@ async function getAuthenticatedUser(providedEmail, providedPassword) {
         providedPassword,
         storedPassword,
       );
-      
+
       if (!correctPasswordMatch) {
         throw new UnauthorizedError({
           message: "Senha incorreta.",
@@ -513,7 +513,7 @@ async function create(userId) {
   // cria 48 bytes aleatorios e converte em uma string em hexadecimal,
   // onde cada byte é representado por 2 caracteres, totalizando uma string de 96 caracteres
   const token = crypto.randomBytes(48).toString("hex");
-  
+
   // Data atual somada a 30 dias para frente
   const expiresAt = new Date(Date.now() + EXPIRATION_IN_MILLISECONDS);
 
@@ -537,7 +537,7 @@ async function create(userId) {
 
 const session = {
   create,
-  EXPIRATION_IN_MILLISECONDS
+  EXPIRATION_IN_MILLISECONDS,
 };
 
 export default session;
@@ -575,8 +575,8 @@ async function postHandler(request, response) {
 
   const newSession = await session.create(authenticatedUser.id);
 
-  response.setHeader('Set-Cookie', `session_id=${newSession.token}`)
-  
+  response.setHeader("Set-Cookie", `session_id=${newSession.token}`);
+
   return response.status(201).json(newSession);
 }
 ```
@@ -589,12 +589,12 @@ Com essa instrução de `Set-Cookie`, o servidor intrui o cliente a guardar esse
 
 ![alt text](static/cookie_jar.png)
 
-Os Cookie jars são segmentados por URL de origem. Então nesse caso, a nossa URL é o localhost. Por padrão, a RFC determina que o cookie estará diponível no endereço até a última barra. Como mandamos o request para `/api/v1/sessions`, o cookie só estará disponível a partir de  `/api/v1`. Ou seja, agora para qualquer requisição que o client fizer para `localhost/api/v1/...`, ele enviará o cookie junto, mas se a requisição for para a raíz da página, por exemplo, aí ele não enviará o cookie.
+Os Cookie jars são segmentados por URL de origem. Então nesse caso, a nossa URL é o localhost. Por padrão, a RFC determina que o cookie estará diponível no endereço até a última barra. Como mandamos o request para `/api/v1/sessions`, o cookie só estará disponível a partir de `/api/v1`. Ou seja, agora para qualquer requisição que o client fizer para `localhost/api/v1/...`, ele enviará o cookie junto, mas se a requisição for para a raíz da página, por exemplo, aí ele não enviará o cookie.
 
 Para alterar esse comportamento, e fazer com que o client considere o uso do cookie para qualquer endereço depois de `/`, podemos fazer isso:
 
 ```javascript title="./pages/api/v1/sessions/index.js"
-response.setHeader('Set-Cookie', `session_id=${newSession.token}; Path=/`)
+response.setHeader("Set-Cookie", `session_id=${newSession.token}; Path=/`);
 ```
 
 Para facilitar essa criação do Cookie, e evitar ficar passando os comandos de configuração tudo em linha como string, podemos utilizar um módulo chamado `cookie`, e utilizá-lo assim:
@@ -610,7 +610,7 @@ import * as cookie from "cookie";
 
 async function postHandler(request, response) {
   // restante do código foi ocultado
-  
+
   const setCookie = cookie.serialize("session_id", newSession.token, {
     path: "/",
   });
@@ -619,22 +619,22 @@ async function postHandler(request, response) {
   return response.status(201).json(newSession);
 }
 ```
- 
+
 Veja que agora o Path ficará com a raiz da página, e não `/api/v1`:
 ![alt text](static/cookie-jar-2.png)
 
 Vamos aproveitar para adicionar alguns outros parâmetros:
 
-* `maxAge`: Define o tempo em segundos que o cookie será válido do ponto de vista do client. Ele calcula a partir do horário interno do client, então é melhor usar ele do que o `expires`, que pegaria o horário do `expire_at` do token (que está no Banco de Dados), mas aí não funcionaria caso o horário do client esteja errado.
-* `secure`: Define que o servidor só aceitará HTTPS. Então vamos colocar uma condicional para ser assim apenas em produção, já que os testes no ambiente local são em HTTP
-* `httpOnly`: Previne ataques de XSS (Cross-Site Scripting). Sem esse parâmetro, se um hacker conseguir executar um Javascrit no client, por exemplo `document.cookies`, ele consegue acesso a todos os cookies do Cookie Jar. Com o httpOnly, informamos o navegador que ele só deve transitar cookies em sessões HTTP.
+- `maxAge`: Define o tempo em segundos que o cookie será válido do ponto de vista do client. Ele calcula a partir do horário interno do client, então é melhor usar ele do que o `expires`, que pegaria o horário do `expire_at` do token (que está no Banco de Dados), mas aí não funcionaria caso o horário do client esteja errado.
+- `secure`: Define que o servidor só aceitará HTTPS. Então vamos colocar uma condicional para ser assim apenas em produção, já que os testes no ambiente local são em HTTP
+- `httpOnly`: Previne ataques de XSS (Cross-Site Scripting). Sem esse parâmetro, se um hacker conseguir executar um Javascrit no client, por exemplo `document.cookies`, ele consegue acesso a todos os cookies do Cookie Jar. Com o httpOnly, informamos o navegador que ele só deve transitar cookies em sessões HTTP.
 
 ```javascript title="./pages/api/v1/sessions/index.js"
 import * as cookie from "cookie";
 
 async function postHandler(request, response) {
   // restante do código foi ocultado
-  
+
   const setCookie = cookie.serialize("session_id", newSession.token, {
     path: "/",
     // expires: new Date(newSession.expires_at), <= Preferível usar maxAge
@@ -643,7 +643,6 @@ async function postHandler(request, response) {
     httpOnly: true, // previne ataque de XSS
   });
   response.setHeader("Set-Cookie", setCookie);
-
 
   return response.status(201).json(newSession);
 }
@@ -682,8 +681,8 @@ describe("POST to /api/v1/sessions", () => {
         value: responseBody.token,
         maxAge: session.EXPIRATION_IN_MILLISECONDS / 1000,
         path: "/",
-        httpOnly: true
-      });      
+        httpOnly: true,
+      });
     });
   });
 });
@@ -705,7 +704,6 @@ describe("POST to /api/v1/sessions", () => {
     ```
 
     Aí foi só validar os dados.
-
 
 ## Como o navegador usa o Cookie
 
