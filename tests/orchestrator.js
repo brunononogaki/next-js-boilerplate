@@ -1,0 +1,120 @@
+import retry from "async-retry";
+import { faker } from "@faker-js/faker";
+
+import database from "infra/database";
+import migrator from "models/migrator.js";
+import user from "models/user.js";
+import session from "models/session.js";
+import activation from "models/activation.js";
+
+async function waitForAllServices() {
+  await waitForWebServer();
+  await waitForEmailServer();
+
+  async function waitForWebServer() {
+    return retry(fetchStatusPage, {
+      retries: 100,
+      maxTimeout: 1000,
+    });
+
+    async function fetchStatusPage() {
+      const response = await fetch("http://localhost:3000/api/v1/status");
+      if (response.status !== 200) {
+        throw Error();
+      }
+    }
+  }
+
+  async function waitForEmailServer() {
+    return retry(fetchStatusPage, {
+      retries: 100,
+      maxTimeout: 1000,
+    });
+
+    async function fetchStatusPage() {
+      const response = await fetch(
+        `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}`,
+      );
+      if (response.status !== 200) {
+        throw Error();
+      }
+    }
+  }
+}
+
+async function clearDatabase() {
+  await database.query("drop schema public cascade; create schema public");
+}
+
+async function runPendingMigrations() {
+  await migrator.runPendingMigrations();
+}
+
+async function createUser(userObject) {
+  return await user.create({
+    username:
+      userObject?.username || faker.internet.username().replace(/[_.-]/g, ""),
+    email: userObject?.email || faker.internet.email(),
+    password: userObject?.password || "validpassword",
+  });
+}
+
+async function activateUser(userObject) {
+  return await activation.activateUserByUserId(userObject.id);
+}
+
+async function createSession(userId) {
+  return await session.create(userId);
+}
+
+async function deleteAllEmails() {
+  await fetch(
+    `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}/messages`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
+async function getLastEmail() {
+  // Collect all messages in the mailbox
+  const emailListResponse = await fetch(
+    `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}/messages`,
+  );
+  const emailListBody = await emailListResponse.json();
+  // Get the last item
+  const lastEmailItem = emailListBody.pop();
+  if (!lastEmailItem) {
+    return null;
+  }
+
+  // Get the text of this email
+  const emailTextResponse = await fetch(
+    `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}/messages/${lastEmailItem.id}.plain`,
+  );
+
+  // Add the email text in the response payload
+  const emailTextBody = await emailTextResponse.text();
+  lastEmailItem.text = emailTextBody;
+
+  return lastEmailItem;
+}
+
+function extractUUID(text) {
+  const match = text.match(/[0-9a-fA-F-]{36}/);
+  return match ? match[0] : null;
+}
+
+const orchestrator = {
+  waitForAllServices,
+  clearDatabase,
+  runPendingMigrations,
+  createUser,
+  activateUser,
+  createSession,
+  deleteAllEmails,
+  getLastEmail,
+  extractUUID,
+};
+
+export default orchestrator;

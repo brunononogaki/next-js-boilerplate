@@ -1,0 +1,31 @@
+services:
+  database:
+    container_name: postgres-dev
+    image: postgres:17.0
+    # volumes:
+    #   - pgdata:/var/lib/postgresql/data
+    env_file:
+      - ../.env.development
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  mailcacher:
+    container_name: mailcacher-dev
+    image: sj26/mailcatcher
+    ports:
+      - "1025:1025"
+      - "1080:1080"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+# volumes:
+#   pgdata:
