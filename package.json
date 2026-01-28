@@ -1,7 +1,7 @@
 {
   "name": "meubonsai-app-v2",
   "version": "1.0.0",
-  "description": "MeuBonsai.App",
+  "description": "NextJS Boilerplate",
   "main": "index.js",
   "scripts": {
     "dev": "npm run services:up && npm run services:wait:database && npm run migrations:up && next dev",
