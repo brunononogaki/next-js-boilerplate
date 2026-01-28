@@ -1,6 +1,7 @@
 services:
-  mkdocs:
+  curso-dev-mkdocs:
     image: python:3.11
+    container_name: curso-dev-mkdocs
     labels:
       # Traefik configuration
       - "traefik.enable=true"
