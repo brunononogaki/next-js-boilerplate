@@ -6,14 +6,14 @@ O objetivo agora é criar um endpoint que de fato utiliza esse Cookie, e esse en
 
 ## Setup do Teste
 
-Aqui o setup do teste é meio que o mais do mesmo: vamos criar um usuário, criar uma sessão desse usuário, e fazer o GET no novo endpoint `api/v1/user` para receber os dados do usuário. O único detalhe por enquanto é que a criação da sessão não é uma coisa que estamos interessados na validação do teste, ela é apenas um setup para o teste que realmente queremos fazer. Então vamos abstrair isso no `orchestrator`. 
+Aqui o setup do teste é meio que o mais do mesmo: vamos criar um usuário, criar uma sessão desse usuário, e fazer o GET no novo endpoint `api/v1/user` para receber os dados do usuário. O único detalhe por enquanto é que a criação da sessão não é uma coisa que estamos interessados na validação do teste, ela é apenas um setup para o teste que realmente queremos fazer. Então vamos abstrair isso no `orchestrator`.
 
 ```javascript title="./tests/orchestrator.js"
-import session from "models/session.js"
+import session from "models/session.js";
 
 async function createSession(userId) {
   return await session.create(userId);
-} 
+}
 
 const orchestrator = {
   waitForAllServices,
@@ -53,7 +53,6 @@ describe("GET /api/v1/user", () => {
     });
   });
 });
-
 ```
 
 Show! Claro que o teste vai falhar, porque ainda não temos o controller do `/user` criado. Então bora criá-lo:
@@ -75,7 +74,7 @@ async function getHandler(request, response) {
 ```
 
 Ok, sem novidades até aqui!
- 
+
 ## Validando o usuário
 
 Agora a nossa aplicação está recebendo um Cookie no cabeçalho da request. O que ela vai precisar fazer é verificar se esse cookie está no banco de dados, e se não está expirado. Assim, poderemos ver se essa é uma sessão válida, e saberemos quem é o usuário dono da sessão! Vamos começar a especular como será esse código no controller, mesmo não tendo ainda nada implementado nos nossos models:
@@ -99,7 +98,6 @@ async function getHandler(request, response) {
   const userFound = await user.findOneById(sessionObject.user_id);
   return response.status(200).json(userFound);
 }
-
 ```
 
 Ou seja, precisamos de um método no model `session` que recebe um Token e consulta na base de dados se o token existe, e se o expires_at dele está na frente da data atual. Vamos escrevê-lo:
@@ -188,22 +186,20 @@ describe("GET /api/v1/user", () => {
 
       expect(response.status).toBe(200);
       const responseBody = await response.json();
-      expect(responseBody).toEqual(
-        {
-          id: createdUser.id,
-          username: "UserWithValidSession",
-          email: createdUser.email,
-          password: createdUser.password,
-          // conversão para toISOString, porque o que retornamos do orchestrator.createUser é um objeto Date nativo do JavaScript
-          // e o que retornamos da API é uma string, e não um objeto do tipo Date
-          // Portanto, precisamos converter o que retornamos do orchestrtor para uma string, para bater com o tipo que volta da response da API
-          created_at: createdUser.created_at.toISOString(),
-          updated_at: createdUser.updated_at.toISOString()
-        }
-      )
+      expect(responseBody).toEqual({
+        id: createdUser.id,
+        username: "UserWithValidSession",
+        email: createdUser.email,
+        password: createdUser.password,
+        // conversão para toISOString, porque o que retornamos do orchestrator.createUser é um objeto Date nativo do JavaScript
+        // e o que retornamos da API é uma string, e não um objeto do tipo Date
+        // Portanto, precisamos converter o que retornamos do orchestrtor para uma string, para bater com o tipo que volta da response da API
+        created_at: createdUser.created_at.toISOString(),
+        updated_at: createdUser.updated_at.toISOString(),
+      });
       expect(uuidVersion(responseBody.id)).toBe(4);
       expect(Date.parse(responseBody.created_at)).not.toBeNaN();
-      expect(Date.parse(responseBody.created_at)).not.toBeNaN();      
+      expect(Date.parse(responseBody.created_at)).not.toBeNaN();
     });
   });
 });
@@ -317,8 +313,8 @@ describe("GET /api/v1/user", () => {
       const sessionObject = await orchestrator.createSession(createdUser.id);
 
       // Definindo o agora como sendo agora de verdade
-      jest.useRealTimers();     
-       
+      jest.useRealTimers();
+
       const response = await fetch("http://localhost:3000/api/v1/user", {
         headers: {
           Cookie: `session_id=${sessionObject.token}`,
@@ -339,8 +335,6 @@ describe("GET /api/v1/user", () => {
 ## Renovando sessões
 
 Agora vamos fazer com que o usuário renove a sua sessão toda vez que ele encostar no endpoint `/user`. No teste de fizemos para "With valid session", ao invés de validar apenas o corpo da resposta com os dados do usuário, queremos também validar se a sessão foi renovada. Isso não está programado ainda, mas vamos implementar esse teste!
-
-
 
 ```javascript title="./tests/integration/api/v1/user/get.test.js" hl_lines="40-45"
 import { version as uuidVersion } from "uuid";
@@ -390,7 +384,7 @@ describe("GET /api/v1/user", () => {
       expect(renewedSessionObject.updated_at > sessionObject.updated_at).toBe(true);
 
     // Demais testes ocultados...
-```      
+```
 
 Nesses testes, portanto, queremos que depois de validar o GET com sucesso no `/user`, retornando os dados do usuário, vamos ver direto na base de dados se o Token foi atualizado. Ou seja, se o `expires_at` e o `updated_at` estão com um valor futuro ao da criação do registro.
 
@@ -412,9 +406,9 @@ async function getHandler(request, response) {
   const sessionToken = request.cookies.session_id;
 
   const sessionObject = await session.findOneValidByToken(sessionToken);
-  
+
   await session.renew(sessionObject.id);
-  
+
   const userFound = await user.findOneById(sessionObject.user_id);
   return response.status(200).json(userFound);
 }
@@ -462,7 +456,7 @@ import * as cookie from "cookie";
 
 async function postHandler(request, response) {
   // restante do código foi ocultado
-  
+
   const setCookie = cookie.serialize("session_id", newSession.token, {
     path: "/",
     // expires: new Date(newSession.expires_at), <= Preferível usar maxAge
@@ -471,7 +465,6 @@ async function postHandler(request, response) {
     httpOnly: true, // previne ataque de XSS
   });
   response.setHeader("Set-Cookie", setCookie);
-
 
   return response.status(201).json(newSession);
 }
@@ -620,10 +613,10 @@ describe("GET /api/v1/user", () => {
         maxAge: session.EXPIRATION_IN_MILLISECONDS / 1000,
         path: "/",
         httpOnly: true,
-      });    
-      
+      });
+
       // Demais testes ocultados...
-```    
+```
 
 !!! warning
 
@@ -654,4 +647,3 @@ describe("GET /api/v1/user", () => {
 !!! success
 
     Sucesso! Agora sim, a nossa sessão está sendo novada toda vez que o client encostar na API `/user`!
-

@@ -21,8 +21,8 @@ nav:
       - 02. Criando os endpoints da API para migrations: 03_database_migrations/02_Criando_API_Migration.md
   - Setup do CI/CD:
       - 01. Estabilizando o ambiente local: 04_setup_cicd/01_Estabilizando_Local.md
-      - 02. Criando os testes no CI com GH Actions: 04_setup_cicd/02_Testes_no_CI(GH_Actions).md  
-      - 03. Linting de Commits: 04_setup_cicd/03_Linting_de_Commits.md  
+      - 02. Criando os testes no CI com GH Actions: 04_setup_cicd/02_Testes_no_CI(GH_Actions).md
+      - 03. Linting de Commits: 04_setup_cicd/03_Linting_de_Commits.md
   - Setup do Front-End React:
       - 01. Criando a página /status: 05_setup_frontend/01_Criando_pagina_status.md
   - Usuários:
@@ -57,7 +57,7 @@ theme:
     - navigation.expand
     - search.highlight
     - search.suggest
-    
+
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true

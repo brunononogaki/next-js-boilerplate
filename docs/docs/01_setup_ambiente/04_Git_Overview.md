@@ -1,4 +1,5 @@
 # Git Overview
+
 Ao contrário de sistemas antigos como o CVS, que utilizavam _Delta Encoding_ (mantendo o histórico de alterações com base nos **diffs**), o Git trabalha com "fotos" completas do repositório.
 
 Quando fazemos um commit, o Git tira uma “foto” do estado atual do projeto. Para cada arquivo, ele calcula um identificador único com base no conteúdo e salva esse conteúdo na pasta `.git` como um objeto chamado Blob (Binary Large Object). Ao criar um novo commit, o Git verifica quais arquivos foram alterados:
@@ -204,6 +205,7 @@ A partir desse commit, você pode criar uma nova branch com:
 ```bash
 git checkout -b nova-branch c5cc524
 ```
+
 Onde `c5cc524` é o nome do commit.
 
 ## Merge
@@ -303,18 +305,16 @@ E para resolver isso, vamos fazer o `rebase`. Ou seja, refazer a base da nossa b
 3. Fazer o rebase para a branch main: `git rebase main`
 
 4. Resolver o conflito manualmente
-   
 5. Adicionar as alterações para staging: `git add .`
 
 6. Fazer o rebase: `git rebase --continue`
 
 7. Fazer o git push com a opção de -f: `git push -f`
 
-
 !!! tip
-    
+
     Caso seja necessário editar commits no passado, você pode fazer um rebase até um commit antigo, e ir adicionado os commits um a um de forma interativa. Com o `git log` você pega o histórico de commits, e faz um `git rebase -i {id_commit}`. É possível fazer também algo como `git rebase -i HEAD~2`, para voltar 2 commits do Head, por exemplo.
-    
+
     No arquivo git-rebase-todo que vai abrir, deixe como `pick` os commits que você não quer mexer; `edit` para editar; `reword` para alterar a mensagem de commit. Salve e feche o arquivo.
 
     Se você tiver algum commit marcado como `edit`, ele vai parar nesse commit para você poder editar o que quiser. Depois de fazer as suas alterações, faça com `git add -A`, e depois um `git commit --ammend` para adicionar esse commit. Se quiser, pode usar a flag `--no-edit` para nem ter que mudar a mensagem de commit. Para continuar com o rebase, faça `git rebase --continue`.

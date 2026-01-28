@@ -245,4 +245,3 @@ function DatabaseStatus() {
     Sucesso, temos a nossa primeira página consumindo dados da API, tratando, e exibindo na tela. Ainda tudo simples e sem formatação, mas vamos melhorando aos poucos!
 
     ![alt text](static/status_page_v1.png)
-

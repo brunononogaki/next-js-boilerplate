@@ -71,7 +71,9 @@ describe("GET to /api/v1/users/[username]", () => {
       });
       expect(response1.status).toBe(201);
 
-      const response2 = await fetch("http://localhost:3000/api/v1/users/MesmoCase")
+      const response2 = await fetch(
+        "http://localhost:3000/api/v1/users/MesmoCase",
+      );
       expect(response2.status).toBe(200);
       const response2Body = await response2.json();
 
@@ -86,7 +88,7 @@ describe("GET to /api/v1/users/[username]", () => {
 
       expect(uuidVersion(response2Body.id)).toBe(4);
       expect(Date.parse(response2Body.created_at)).not.toBeNaN();
-      expect(Date.parse(response2Body.created_at)).not.toBeNaN();     
+      expect(Date.parse(response2Body.created_at)).not.toBeNaN();
     });
 
     test("With exact case mismatch", async () => {
@@ -105,7 +107,9 @@ describe("GET to /api/v1/users/[username]", () => {
       });
       expect(response1.status).toBe(201);
 
-      const response2 = await fetch("http://localhost:3000/api/v1/users/casediferente")
+      const response2 = await fetch(
+        "http://localhost:3000/api/v1/users/casediferente",
+      );
       expect(response2.status).toBe(200);
       const response2Body = await response2.json();
 
@@ -120,8 +124,8 @@ describe("GET to /api/v1/users/[username]", () => {
 
       expect(uuidVersion(response2Body.id)).toBe(4);
       expect(Date.parse(response2Body.created_at)).not.toBeNaN();
-      expect(Date.parse(response2Body.created_at)).not.toBeNaN();     
-    });    
+      expect(Date.parse(response2Body.created_at)).not.toBeNaN();
+    });
   });
 });
 ```
@@ -157,7 +161,7 @@ export default router.handler(controller.errorHandler);
 
 async function getHandler(request, response) {
   const username = request.query.username;
-  const userFound = await user.findOneByUsername(username)
+  const userFound = await user.findOneByUsername(username);
   return response.status(200).json(userFound);
 }
 ```
@@ -194,7 +198,6 @@ async function findOneByUsername(username) {
       values: [username],
     });
     return results.rows[0];
-    
   }
 }
 
@@ -232,18 +235,20 @@ describe("GET to /api/v1/users/[username]", () => {
 
     test("With exact case mismatch", async () => {
       // Implementação ocultada
-    });    
+    });
     test("With non existent username", async () => {
-      const response = await fetch("http://localhost:3000/api/v1/users/usuarionaoexiste")
+      const response = await fetch(
+        "http://localhost:3000/api/v1/users/usuarionaoexiste",
+      );
       expect(response.status).toBe(404);
       const responseBody = await response.json();
       expect(responseBody).toEqual({
         name: "NotFoundError",
         message: "O username informado não foi encontrado no sistema.",
         action: "Verifique se o username está digitado corretamente.",
-        status_code: 404
-      })
-    });      
+        status_code: 404,
+      });
+    });
   });
 });
 ```
@@ -281,6 +286,7 @@ async function findOneByUsername(username) {
 ```
 
 E criar o erro `NotFoundError` no nosso arquivo `./infra/errors.js`:
+
 ```javascript title="./infra/errors.js"
 export class NotFoundError extends Error {
   constructor({ cause, message, action }) {
@@ -288,7 +294,8 @@ export class NotFoundError extends Error {
       cause: cause,
     });
     this.name = "NotFoundError";
-    this.action = action || "Verifique se os parâmetros enviados na consulta estão certos.";
+    this.action =
+      action || "Verifique se os parâmetros enviados na consulta estão certos.";
     this.statusCode = 404;
     this.message = message;
   }
@@ -297,7 +304,7 @@ export class NotFoundError extends Error {
     return {
       name: this.name,
       message: this.message,
-      action: this.action, 
+      action: this.action,
       status_code: this.statusCode,
     };
   }
@@ -305,6 +312,7 @@ export class NotFoundError extends Error {
 ```
 
 Agora, precisamos alterar o nosso controller para lançar esse erro mais específico, e não o erro 500 padrão:
+
 ```javascript title="./infra/controller.js" hl_lines="5 18-20"
 import {
   InternalServerError,

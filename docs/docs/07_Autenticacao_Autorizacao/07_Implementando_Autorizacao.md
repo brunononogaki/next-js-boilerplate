@@ -5,6 +5,7 @@ Agora vamos criar o model `authorization`, que será responsável por lidar com 
 ## Model `authorization`
 
 Vamos começar o nosso novo model bem simples, apenas abstraindo a lógica de validar se um usuário tem acesso a uma determinada feature, que a gente resolveu por enquanto dentro do `controller.js`, mais especificamente nessa linha:
+
 ```javascript title="./infra/controller.js"
 if (userTryingToRequest.features.includes(feature)) {
   ...
@@ -58,7 +59,7 @@ Pensando no nosso fluxo até agora, temos o seguinte:
 1. Usuário faz o cadastro
 2. Usuário recebe o e-mail de ativação
 3. Usuário faz a **ativação** da conta
-   1. Client envia um PATCH para o endpoint `/activations/[token_id]`, 
+   1. Client envia um PATCH para o endpoint `/activations/[token_id]`,
    2. Token é validado com sucesso
    3. Chama o método `activation.activateUserByUserId()`, que vai setar a feature `create:session` para o usuário, dando a ele a permissão para fazer o login
 4. Usuário tenta fazer o **login** enviando um POST para o endpoint `/sessions`
@@ -103,7 +104,7 @@ async function postHandler(request, response) {
     userInputValues.email,
     userInputValues.password,
   );
-  
+
   if (!authorization.can(authenticatedUser, "create:session")) {
     throw new ForbiddenError({
       message: "Você não possui permissão para fazer login.",
@@ -215,30 +216,30 @@ async function activateUserByUserId(userId) {
 Por fim, vamos criar os testes no registration-flow:
 
 ```javascript title="./tests/integration/_use-cases/registration-flow.test.js"
-  test("Get user information", async () => {
-    const responseUserInformation = await fetch(
-      "http://localhost:3000/api/v1/user",
-      {
-        headers: {
-          Cookie: `session_id=${createSessionsResponseBody.token}`,
-        },
+test("Get user information", async () => {
+  const responseUserInformation = await fetch(
+    "http://localhost:3000/api/v1/user",
+    {
+      headers: {
+        Cookie: `session_id=${createSessionsResponseBody.token}`,
       },
-    );
-    expect(responseUserInformation.status).toBe(200);
-    const responseUserInformationBody = await responseUserInformation.json();
-    expect(responseUserInformationBody).toEqual({
-      id: createUserResponseBody.id,
-      username: "RegistrationFlow",
-      email: createUserResponseBody.email,
-      features: ["create:session", "read:session"],
-      password: createUserResponseBody.password,
-      created_at: createUserResponseBody.created_at,
-      updated_at: responseUserInformationBody.updated_at,
-    });
-    expect(uuidVersion(responseUserInformationBody.id)).toBe(4);
-    expect(Date.parse(responseUserInformationBody.created_at)).not.toBeNaN();
-    expect(Date.parse(responseUserInformationBody.created_at)).not.toBeNaN();
+    },
+  );
+  expect(responseUserInformation.status).toBe(200);
+  const responseUserInformationBody = await responseUserInformation.json();
+  expect(responseUserInformationBody).toEqual({
+    id: createUserResponseBody.id,
+    username: "RegistrationFlow",
+    email: createUserResponseBody.email,
+    features: ["create:session", "read:session", "update:user"],
+    password: createUserResponseBody.password,
+    created_at: createUserResponseBody.created_at,
+    updated_at: responseUserInformationBody.updated_at,
   });
+  expect(uuidVersion(responseUserInformationBody.id)).toBe(4);
+  expect(Date.parse(responseUserInformationBody.created_at)).not.toBeNaN();
+  expect(Date.parse(responseUserInformationBody.created_at)).not.toBeNaN();
+});
 ```
 
 !!! warning

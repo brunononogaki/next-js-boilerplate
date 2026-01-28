@@ -184,7 +184,7 @@ async function deleteAllEmails() {
     `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}/messages`,
     {
       method: "DELETE",
-    }
+    },
   );
 }
 ```
@@ -222,7 +222,7 @@ Vamos agora implementar a função `getLastEmail()`:
 async function getLastEmail() {
   // Collect all messages in the mailbox
   const emailListResponse = await fetch(
-    `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}/messages`
+    `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}/messages`,
   );
   const emailListBody = await emailListResponse.json();
   // Get the last item
@@ -230,7 +230,7 @@ async function getLastEmail() {
 
   // Get the text of this email
   const emailTextResponse = await fetch(
-    `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}/messages/${lastEmailItem.id}.plain`
+    `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}/messages/${lastEmailItem.id}.plain`,
   );
 
   // Add the email text in the response payload
@@ -311,7 +311,7 @@ async function waitForAllServices() {
 
     async function fetchStatusPage() {
       const response = await fetch(
-        `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}`
+        `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}`,
       );
       if (response.status !== 200) {
         throw Error();

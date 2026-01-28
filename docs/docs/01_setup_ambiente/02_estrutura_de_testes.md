@@ -1,16 +1,16 @@
 # Iniciando o setup do Test Runner (Jest)
 
-Agora vamos começar a definir como faremos os testes. Adoraremos o test runner ``Jest``.
+Agora vamos começar a definir como faremos os testes. Adoraremos o test runner `Jest`.
 
 ## Instalando o Jest
 
-Para instalar o Jest como dependência do projeto, é só dar um ``npm install``. Mas instalaremos ele como dependência de dev, e não de produção, através da flag ``--save-dev``
+Para instalar o Jest como dependência do projeto, é só dar um `npm install`. Mas instalaremos ele como dependência de dev, e não de produção, através da flag `--save-dev`
 
 ```bash
 npm install --save-dev jest@29.6.2
 ```
 
-Agora vamos editar o ``package.json`` para incluirmos atalhos para os testes. Já vamos definir a flag ``--runInBand``, que faz com que ele rode os testes sequenciais e não paralelizados, o que pra gente facilita a vida principalmente quando formos testar integração com o banco de dados.
+Agora vamos editar o `package.json` para incluirmos atalhos para os testes. Já vamos definir a flag `--runInBand`, que faz com que ele rode os testes sequenciais e não paralelizados, o que pra gente facilita a vida principalmente quando formos testar integração com o banco de dados.
 
 ```javascript title="package.json"
   "scripts": {
@@ -23,14 +23,13 @@ Agora vamos editar o ``package.json`` para incluirmos atalhos para os testes. J�
 ## Criando um teste de teste
 
 Vamos criar um teste simples, que não testa nada na verdade, mas é só pra ver o Jest em ação.
-Dentro da pasta tests, vamos criar um arquivo chamado ``exemplo.test.js``:
+Dentro da pasta tests, vamos criar um arquivo chamado `exemplo.test.js`:
 
 ```javascript title="/tests/exemplo.test.js"
 test("teste 1", () => {
   expect(1).toBe(1);
 });
 ```
-
 
 Esse teste vai simplesmente testar que 1 == 1. Bem útil!
 
@@ -75,7 +74,9 @@ Watch Usage
 ```
 
 ## Usando `describe` nos testes
+
 Uma funcionalidade do Jest que nos ajuda a descrever melhor os testes é a função `describe`, que pode ser usada assim:
+
 ```javascript
 describe("GET /api/v1/migrations", () => {
   describe("Anonymous user", () => {

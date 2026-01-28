@@ -1,4 +1,4 @@
-# Configurando a rota para updates de usuários
+git # Configurando a rota para updates de usuários
 
 O objetivo agora é termos uma rota `api/v1/users/[usuario]`, que aceite um PATCH para atualizar alguma informação do usuário.
 
@@ -22,9 +22,9 @@ describe("PATCH to /api/v1/users/[username]", () => {
     test("With non existent username", async () => {
       const response = await fetch(
         "http://localhost:3000/api/v1/users/usuarionaoexiste",
-          {
-            method: "PATCH",
-          },
+        {
+          method: "PATCH",
+        },
       );
       expect(response.status).toBe(404);
       const responseBody = await response.json();
@@ -84,7 +84,7 @@ async function update(username, userInputValues) {
 const user = {
   create,
   findOneByUsername,
-  update
+  update,
 };
 
 export default user;
@@ -240,7 +240,7 @@ describe("PATCH to /api/v1/users/[username]", () => {
         action: "Utilize outro email para realizar esta operação.",
         status_code: 400,
       });
-    }); 
+    });
   });
 });
 ```
@@ -268,7 +268,7 @@ Vamos começar fazendo os testes para updates com sucesso de `username` e `email
 ```javascript title="./api/v1/users/[username]/patch.test.js"
 describe("PATCH to /api/v1/users/[username]", () => {
   describe("Anonymous user", () => {
-    
+
     // Os demais testes foram ocultados
 
     test("With unique username", async () => {
@@ -372,7 +372,7 @@ describe("PATCH to /api/v1/users/[username]", () => {
       expect(
         responseUpdateBody.updated_at > responseUpdateBody.created_at,
       ).toBe(true);
-    });    
+    });
 ```
 
 E agora vamos criar a query de `PATCH`:
@@ -499,7 +499,7 @@ describe("PATCH to /api/v1/users/[username]", () => {
       );
       expect(correctPasswordMatch).toBe(true);
       expect(incorrectPasswordMatch).toBe(false);
-    });    
+    });
 ```
 
 E agora vamos configurar o model para receber a senha nova, criar o hash dela, e atualizar no banco. A gente já tinha a função `hashPasswordInObject` dentro de `create`, então vamos mover ela para fora, para que tenha um escopo global. E aí basta utilizá-la no `update`:
@@ -515,7 +515,7 @@ async function update(username, userInputValues) {
     await validateUniqueUsername(userInputValues.username);
   }
   if ("password" in userInputValues) {
-    await hashPasswordInObject(userInputValues)
+    await hashPasswordInObject(userInputValues);
   }
 
   const userWithNewValues = { ...currentUser, ...userInputValues };
@@ -562,6 +562,7 @@ async function hashPasswordInObject(userInputValues) {
 Por enquanto está tudo certo, mas tem como melhorarmos os testes de usuários. Nos testes dentro de `[username]` (o GET e o PATCH), em cada teste a gente tem que criar um novo usuário, e isso é uma tarefa repetitiva, que podemos delegar para o `orchestrator`. Nesses testes, a gente não está interessado na criação dele, essa criação é na verdade um pré-requisito para o teste.
 
 Esse é o bloco de código que queremos eliminar:
+
 ```javascript
 const userToBeCreated1 = {
   username: "UsuarioTeste",
@@ -580,6 +581,7 @@ expect(response1.status).toBe(201);
 ```
 
 Vamos então criar um novo método no `orchestrator`:
+
 ```javascript title="./tests/orchestrator.js"
 import user from "models/user.js";
 
@@ -589,14 +591,13 @@ async function createUser(userObject) {
 ```
 
 E agora esses blocos podem ser substituídos simplesmente por isso (alterando apenas os dados do usuário):
+
 ```javascript
-await orchestrator.createUser(
-  {
-    username: "UsuarioTeste",
-    email: "usuario.teste@email.com",
-    password: "senha123",
-  }
-)
+await orchestrator.createUser({
+  username: "UsuarioTeste",
+  email: "usuario.teste@email.com",
+  password: "senha123",
+});
 ```
 
 Mas note que temos alguns testes em que não estamos interessados exatamente no email ou username. Por exemplo, no teste de username duplicado, podemos mandar qualquer e-mails, pois não interessa muito nesse teste. Para isso, podemos alterar o método `createUser` e passar a usar um módulo chamado `faker`, que cria randomicamente dados respeitando algumas regras, como ter um formato de e-mail válido. Vamos instalar o Faker como uma dependência de desenvolvimento:
@@ -608,7 +609,7 @@ npm i -E -D @faker-js/faker@9.7.0
 E agora vamos alterar o Orchestrator:
 
 ```javascript title="./tests/orchestrator.js"
-import { faker } from "@faker-js/faker"
+import { faker } from "@faker-js/faker";
 
 async function createUser(userObject) {
   return await user.create({
@@ -621,6 +622,7 @@ async function createUser(userObject) {
 ```
 
 E nos testes, podemos agora passar apenas os valores que nos interessam na criação do usuário, por exemplo:
+
 ```javascript
 test("With duplicated email", async () => {
   // não precisamos mais passar o username e a senha do usuário 1

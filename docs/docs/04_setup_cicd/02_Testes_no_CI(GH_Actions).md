@@ -1,6 +1,7 @@
 # Criando os testes no CI com GitHub Actions
 
 ## Criando o Workflow de Teste
+
 Agora que já temos os testes estabilizados no nosso ambiente local, já estamos prontos para rodá-los em um servidor remoto, através de um Workflow de CI no GitHub Actions.
 
 Na raíz do nosso projeto, vamos criar uma pasta especial chamada `.github`, e dentro dela uma outra chamada `workflows`. E nessa pasta `workflows`, vamos criar o nosso primeiro fluxo, que chamaremos de `tests.yaml`:
@@ -24,13 +25,14 @@ jobs:
           node-version: "lts/hydrogen"
 
       # O npm ci usa estritamente o que está no package-lock.json, diferente do npm install que pode pegar pacotes atualizados, e aí os ambiente de teste poderia mudar com o tempo
-      - run: npm ci 
+      - run: npm ci
 
       # Executa o npm test
       - run: npm test
 ```
 
 Agora, vamos criar uma branch nova chamada `actions`, e fazer o push para ela:
+
 ```bash
 git checkout -b actions
 git add .
@@ -41,18 +43,19 @@ git push --set-upstream origin actions
 E lá no GitHub, vamos abrir um Pull Request da branch `action` para a branch `main`. Ao fazer isso, esse fluxo de teste é chamado.
 
 ## Protegendo a Branch main
+
 Caso os testes falhem, ainda assim o GitHub vai permitir fazermos o merge para a main. O ideal seria isso não ser possível, pois não queremos subir um código quebrado. Para isso, vamos nos Settings do nosso projeto, e navegar nas seguintes opções (pode ser que a interface mude no futuro, mas a ideia é essa):
 
-* Settings --> Branches --> Add Branch ruleset
-* Crie um nome para o ruleset, por exemplo: branch-main-protection
-* Mude para `Enabled`
-* Em `Target branches`, clique em Add target e selecione `Include default branch`
-* Marque as opções:
-  * Restrict deletions
-  * Require a pull request before merging
-  * Require status checks to pass
-    * Adicione o check Jest Ubuntu
-  * Block force pushes
+- Settings --> Branches --> Add Branch ruleset
+- Crie um nome para o ruleset, por exemplo: branch-main-protection
+- Mude para `Enabled`
+- Em `Target branches`, clique em Add target e selecione `Include default branch`
+- Marque as opções:
+  - Restrict deletions
+  - Require a pull request before merging
+  - Require status checks to pass
+    - Adicione o check Jest Ubuntu
+  - Block force pushes
 
 ## Criando o Workflow de Lint com o Prettier (estilização)
 
@@ -94,6 +97,7 @@ npm i -D eslint-config-prettier@9.1.0
 ```
 
 Ele vai criar um arquivo chamado `.eslintrc.json` na raíz do projeto. Vamos editá-lo para adicionar esses plugins, e adicionar também um conjunto de regras chamado `eslint:recommended`:
+
 ```json title=".eslintrc.json"
 {
   "extends": [
@@ -106,6 +110,7 @@ Ele vai criar um arquivo chamado `.eslintrc.json` na raíz do projeto. Vamos edi
 ```
 
 E agora vamos adicionar um atalho no nosso `package.json` para rodar o ESLint:
+
 ```json title="package.json" hl_lines="8"
   "scripts": {
     "dev": "npm run services:up && npm run wait-for-postgres && npm run migration:up && next dev",
@@ -191,7 +196,6 @@ E agora basta adicionar o ESLint na lista de Checks do ruleset do Github, como f
 !!! note
 
     Os erros levantados pelo ESLint foram resolvidas manualmente, seja ignorando o erro, ou corrigindo ele. Não entrarei em detalhes aqui no documento, mas o proprio VSCode sugere como corrigir, e o Copilot também é excelente nesses casos
-
 
 !!! note
 

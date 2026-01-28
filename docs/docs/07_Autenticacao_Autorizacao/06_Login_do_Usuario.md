@@ -14,9 +14,9 @@ router.post(postHandler);
 router.delete(deleteHandler);
 
 function testeDeLog(request, response, next) {
-    console.log("Hora", new Date().toISOString());
-    console.log("Path:", request.method, request.url);
-    return next();
+  console.log("Hora", new Date().toISOString());
+  console.log("Path:", request.method, request.url);
+  return next();
 }
 ```
 
@@ -37,6 +37,7 @@ router.delete(deleteHandler);
     Nesse caso, vamos inserir esse método de injetar o usuário dentro do `controller`. Mas poderia estar também dentro do model de `authentications`. Isso fica meio que a critério de como cada um entende a arquitetura do seu sistema, não tem uma resposta certa para isso.
 
 E agora vamos criar esse método no controller. A lógica será a seguinte:
+
 1. Se o cookie `session_id` existe, injetar o usuário
 2. Se o cookie não existir, injetar usuário anomimo
 
@@ -52,6 +53,7 @@ async function injectAnonymousOrUser(request, response, next) {
 ```
 
 Agora para injetar o usuário autenticado, a lógica é:
+
 1. Buscar a sessão válida
 2. Buscar o usuário
 3. Injetar ele no request, em uma nova propriedade chamada `context`
@@ -64,12 +66,13 @@ async function injectAuthenticatedUser(request) {
 
   request.context = {
     ...request.context, // <= Para evitar sobrescrever o contexto, e sim adicionar a propriedade
-    user: userObject
-  }
+    user: userObject,
+  };
 }
 ```
 
 Agora para injetar um usuário anônimo é um pouco mais simples. Não precisamos pegar detalhes do usuário, mas sim definir as features que ele terá acesso. Um usuário anônimo (não logado), possui as permissões de:
+
 1. Criar uma conta
 2. Ativar uma conta com o activation token que vem no e-mail
 3. Criar uma sessão logada
@@ -90,43 +93,43 @@ async function injectAnonymousUser(request) {
 Agora podemos escrever um teste simples de login dentro do `registration-flow.test.js`:
 
 ```javascript title="./tests/integration/_use-cases/registration-flow.test.js"
-  test("Login", async () => {
-    const createSessionResponse = await fetch(
-      "http://localhost:3000/api/v1/sessions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: createUserResponseBody.email,
-          password: "senha123",
-        }),
+test("Login", async () => {
+  const createSessionResponse = await fetch(
+    "http://localhost:3000/api/v1/sessions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        email: createUserResponseBody.email,
+        password: "senha123",
+      }),
+    },
+  );
 
-    expect(createSessionResponse.status).toBe(201);
-      const responseBody = await createSessionResponse.json();
-      expect(responseBody).toEqual({
-        id: responseBody.id,
-        token: responseBody.token,
-        user_id: createUserResponseBody.id,
-        created_at: responseBody.created_at,
-        updated_at: responseBody.updated_at,
-        expires_at: responseBody.expires_at,
-      });
+  expect(createSessionResponse.status).toBe(201);
+  const responseBody = await createSessionResponse.json();
+  expect(responseBody).toEqual({
+    id: responseBody.id,
+    token: responseBody.token,
+    user_id: createUserResponseBody.id,
+    created_at: responseBody.created_at,
+    updated_at: responseBody.updated_at,
+    expires_at: responseBody.expires_at,
   });
+});
 ```
 
 !!! note
-    
+
     Então nesse teste, temos um usuário deslogado (anônimo) fazendo um POST request para o `/sessions`. Esse request será interceptado pelo `middlware`, que vai chamar a função `injectAnonymousUser` (já que não temos nenhum cookie de sessão ainda), que por sua vez vai injetar uma casca de um usuário no `context`, contendo apenas as `features` que um usuário anônimo tem acesso. Sendo assim, se colocarmos um `console.log(request.context)` no `postHandler()`, teremos isso:
     ```bash
     {
     user: {
         features: [ 'read:activation_token', 'create:session', 'create:user' ]
     }
-    }    
+    }
     ```
 
 ## Fazendo a verificação de permissão
@@ -142,6 +145,7 @@ router.delete(deleteHandler);
 ```
 
 Mas a gente precisa passsar como parâmetro pra esse método qual é a permissão que ele necessita, que no caso seria a "create:session":
+
 ```javascript title="./pages/api/v1/sessions/index.js" hl_lines="2"
 router.use(controller.injectAnonymousOrUser);
 router.post(controller.canRequest("create:session"), postHandler);
@@ -194,13 +198,17 @@ export class ForbiddenError extends Error {
     };
   }
 }
-``` 
+```
 
 E incluímos ele no OR do onErrorHandler do `controller.js`, assim como sempre fazemos com os demais erros que criamos para ele acabar não caindo no InternalServerError genérico. Isso não é novidade:
 
 ```javascript title="./infra/controller.js" hl_lines="2"
 function onErrorHandler(error, request, response) {
-  if (error instanceof ValidationError || error instanceof NotFoundError || error instanceof ForbiddenError) {
+  if (
+    error instanceof ValidationError ||
+    error instanceof NotFoundError ||
+    error instanceof ForbiddenError
+  ) {
     return response.status(error.statusCode).json(error);
   }
   if (error instanceof UnauthorizedError) {

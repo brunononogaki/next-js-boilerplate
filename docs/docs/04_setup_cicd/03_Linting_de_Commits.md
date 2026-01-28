@@ -1,25 +1,27 @@
 # Linting de Commits
 
 Vamos adotar algumas regras nos textos de commit daqui pra frente:
-* Textos em inglês
-* Verbos no imperativo
-* Formato padrão (conventionalcommits.org):
-  * \<type\>[optional scope]: description, onde type pode ser um desses:
-    * fix
-    * feat
-    * build
-    * chore
-    * ci
-    * docs
-    * style
-    * refactor
-    * perf
-    * revert
-    * test
-* Casos como uma feature nova desenvolvida junto com os testes, entrariam em um commit do tipo `feat`. Mas se futuramente descobrirmos que faltou algo nos testes e fizermos um novo commit, aí sim seria do tipo `test`.
+
+- Textos em inglês
+- Verbos no imperativo
+- Formato padrão (conventionalcommits.org):
+  - \<type\>[optional scope]: description, onde type pode ser um desses:
+    - fix
+    - feat
+    - build
+    - chore
+    - ci
+    - docs
+    - style
+    - refactor
+    - perf
+    - revert
+    - test
+- Casos como uma feature nova desenvolvida junto com os testes, entrariam em um commit do tipo `feat`. Mas se futuramente descobrirmos que faltou algo nos testes e fizermos um novo commit, aí sim seria do tipo `test`.
 
 Vamos usar algumas funcionalidades no projeto para nos ajudar no Linting dos commits, e na criação deles:
-* [commitlint](https://commitlint.js.org)
+
+- [commitlint](https://commitlint.js.org)
 
 ## Commitlint
 
@@ -31,20 +33,22 @@ npm i -D @commitlint/config-conventional@19.2.2
 ```
 
 ### Configurando o Commitlint com o Config Conventional
+
 Crie um arquivo na raíz do projeto chamado `commitlint.config.js`:
 
 ```javascript title="/commitlint.config.js"
 module.exports = {
-  extends: ["@commitlint/config-conventional"]
-}
+  extends: ["@commitlint/config-conventional"],
+};
 ```
 
 ### Testando o Commitlint
 
 Podemos rodar o commitlint localmente com o `npx` para ele validar uma mensagem de commit:
+
 ```bash
 echo "feat: teste de mensagem" | npx commitlint
-```  
+```
 
 ## Integrando no CI
 
@@ -56,36 +60,37 @@ No site do CommitLint já tem os scripts que você precisa adicionar para adicio
         run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 ```
 
-O que esse comando faz é pegar todos os commits dentro de um `pull request`, e roda o commitlint um a um. 
+O que esse comando faz é pegar todos os commits dentro de um `pull request`, e roda o commitlint um a um.
 
 Agora é basicamente colocar isso no nosso scrit de linting do CI. O problema é que a action `checkout@v4` que usamos no Worklow para baixar o código, por padrão só baixa o último commit, então não daria para validar todos os commits do PR. Então a gente vai ter que adicionar uma configuração `fetch-depth: 0` para baixarmos todo o histórico de commits.
 
 Vai ficar assim:
+
 ```yaml title=".github/workflows/linting.yaml" hl_lines="6-7 15-18"
-  commitlint:
-    name: Commitlint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 
+commitlint:
+  name: Commitlint
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "lts/hydrogen"
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "lts/hydrogen"
 
-      - run: npm ci
+    - run: npm ci
 
-      - name: Validate PR commits with commitlint
-        if: github.event_name == 'pull_request'
-        run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+    - name: Validate PR commits with commitlint
+      if: github.event_name == 'pull_request'
+      run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 ```
 
 !!! tip
 
     E aí, é só não esquecer de configurar a `Ruleset` no GitHub para ele não continuar o Merge caso falhe nessa verificação.
 
-## Configurando um Hook  
+## Configurando um Hook
 
 Hook é um mecanismo do git para executar alguma coisa quando alguma ação do Git é disparada. No nosso caso, vamos usar o hoot `commit-msg` para rodar o commitlint no nosso ambiente local logo depois de inserirmos uma mensagem de commit, e já validarmos localmente antes de subirmos isso para o repositório remoto.
 
@@ -112,11 +117,13 @@ Então se renomearmos algum desses hooks removendo o `.sample` do nome, o Hook e
 ### Configurando o Husky
 
 Primeiramente vamos instalar a dependência de desenvolvimento:
+
 ```bash
 npm i -D husky@9.1.4
 ```
 
 E depois vamos rodar:
+
 ```bash
 npx husky init
 ```
@@ -149,7 +156,7 @@ Veja que agora o arquivo `.git/config` agora aponta o **hooksPath** para a pasta
         vscode-merge-base = origin/main
 ```
 
-Iremos criar os nossos hooks na pasta .husky, e não dentro da sub-pasta _. Por padrão, já tem um arquivo chamado `pre-commit` lá dentro, que podemos remover. E vamos criar um novo arquivo chamado `commit-msg`.
+Iremos criar os nossos hooks na pasta .husky, e não dentro da sub-pasta \_. Por padrão, já tem um arquivo chamado `pre-commit` lá dentro, que podemos remover. E vamos criar um novo arquivo chamado `commit-msg`.
 
 ```shell title=".husky/commit-msg"
 npx commitlint --edit $1
@@ -158,8 +165,9 @@ npx commitlint --edit $1
 O que esse hook vai fazer é que imediatamente após inserirmos a mensagem de commit, invocaremos o commitlint, passando a mensagem como parâmetro.
 
 Agora se fizermos um commit com uma mensagem fora do padrão, o commitlint já vai barrar:
+
 ```bash
-git commit -m "teste"                                                               ✔  10:14:54  
+git commit -m "teste"                                                               ✔  10:14:54 
 ⧗   input: teste
 ✖   subject may not be empty [subject-empty]
 ✖   type may not be empty [type-empty]
@@ -173,7 +181,6 @@ husky - commit-msg script failed (code 1)
 !!! tip
 
     Se estiver em uma situação de emergência, com pressa, e quiser subir um commit sem que seja verificado, basta fazer o commit com a opção `--no-verify` ou `-n`, que ele vai pular os hooks
-  
 
 ## Configurando o Commitizen
 
@@ -185,11 +192,13 @@ npm i -D commitizen@4.3.0
 ```
 
 E para configuá-lo localmente, a documentação nos instrui a dar esse comando
+
 ```bash
 npx commitizen init cz-conventional-changelog --save-dev --save-exact
 ```
 
 Agora vamos criar um novo scritp no package.json para o comando `commit`:
+
 ```json title="package.json" hl_lines="16"
   "scripts": {
     "dev": "npm run services:up && npm run services:wait:database && npm run migrations:up && next dev",
@@ -211,6 +220,7 @@ Agora vamos criar um novo scritp no package.json para o comando `commit`:
 ```
 
 Agora, quando rodarmos o comando `npm run commit`, ele vai chamar o `cz`:
+
 ```bash
 meubonsai-app-v2@1.0.0 commit
 > cz
@@ -218,19 +228,19 @@ meubonsai-app-v2@1.0.0 commit
 cz-cli@4.3.0, cz-conventional-changelog@3.3.0
 
 ? Select the type of change that you're committing: (Use arrow keys)
-❯ feat:     A new feature 
-  fix:      A bug fix 
-  docs:     Documentation only changes 
-  style:    Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc) 
-  refactor: A code change that neither fixes a bug nor adds a feature 
-  perf:     A code change that improves performance 
-  test:     Adding missing tests or correcting existing tests 
+❯ feat:     A new feature
+  fix:      A bug fix
+  docs:     Documentation only changes
+  style:    Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+  refactor: A code change that neither fixes a bug nor adds a feature
+  perf:     A code change that improves performance
+  test:     Adding missing tests or correcting existing tests
 
-? What is the scope of this change (e.g. component or file name): (press enter to skip) 
+? What is the scope of this change (e.g. component or file name): (press enter to skip)
 ? Write a short, imperative tense description of the change (max 96 chars):
  (35) add commitzen and commit npm script
 ? Provide a longer description of the change: (press enter to skip)
- 
+
 ? Are there any breaking changes? No
 ? Does this change affect any open issues? No
 [hooks d897575] ci: add commitzen and commit npm script
@@ -244,5 +254,5 @@ cz-cli@4.3.0, cz-conventional-changelog@3.3.0
     Até aqui, temos o Next com uma API para `/status` e `/migrations`, banco de dados integrado, testes automatizados e CI/CD configurado.
 
     Ou seja, a fundação está montada, e daqui para frente iniciaremos o deploy da aplicação. O commit final com essa fundação montada está aqui:
-    
+
     [Commit Final - Fundação](https://github.com/brunononogaki/meubonsai-app-v2/commit/d6fe95f5d7ce22d7d5c32e537642afe9f5e8c640)
