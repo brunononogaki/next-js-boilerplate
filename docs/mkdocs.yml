@@ -1,6 +1,6 @@
 site_name: curso.dev notes
-repo_name: brunononogaki/meubonsai-app-v2
-repo_url: https://github.com/brunononogaki/meubonsai-app-v2
+repo_name: brunononogaki/next-js-boilerplate
+repo_url: https://github.com/brunononogaki/next-js-boilerplate/
 
 nav:
   - Home: index.md
@@ -40,6 +40,7 @@ nav:
       - 06. Implementando o Login do Usuário: 07_Autenticacao_Autorizacao/06_Login_do_Usuario.md
       - 07. Implementando a Autorização: 07_Autenticacao_Autorizacao/07_Implementando_Autorizacao.md
       - 08. Bloqueando endpoints: 07_Autenticacao_Autorizacao/08_Bloqueando_Endpoints.md
+      - 09. Bloqueando endpoints baseado em Resources: 07_Autenticacao_Autorizacao/09_Bloqueando_por_resources.md
 theme:
   name: material
   palette:

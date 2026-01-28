@@ -556,4 +556,4 @@ Esse é um exemplo de teste corrigido:
 
 !!! success
 
-    Pronto, agora os nossos endpoints de `/activations` e `/users` já estão sendo bloqueados para quem não possui o devido acesso!
+    Pronto, agora os nossos endpoints de `/activations` e `/users` já estão sendo bloqueados para quem não possui o devido acesso! Bom, mais ou menos... porque do jeito que está, um usuário A ainda consegue atualizar dados de um usuário B. Vamos implementar esse bloqueio a seguir!
