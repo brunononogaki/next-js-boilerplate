@@ -9,7 +9,7 @@ Primeiramente, vamos criar uma nova bateria de testes para usuários privilegiad
 ```javascript title="./tests/integration/api/v1/users/[username]/patch.test.js"
 describe("PATCH to /api/v1/users/[username]", () => {
   /// ...
-    describe("Privileged user", () => {
+  describe("Privileged user", () => {
     test("With update:user:others targeting default user", async () => {
       const defaultUser = await orchestrator.createUser();
 
@@ -137,4 +137,3 @@ function can(user, feature, resource) {
 !!! success
 
     Agora o teste vai passar, e com isso temos implementado o permissionamento privilegiado de um usuário para alterar dados de outros usuários.
-
