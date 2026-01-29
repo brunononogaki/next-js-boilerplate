@@ -127,7 +127,7 @@ const transporter = nodemailer.createTransport({
 });
 
 async function send(mailOptions) {
-  await transporter.sendMail(mailOptions);
+  await transporter.sendMail();
 }
 
 const email = {
