@@ -5,6 +5,8 @@ Este repositório reúne minhas notas de estudo do [curso.dev](https://curso.dev
 
 Sinta-se à vontade para explorar, sugerir melhorias ou entrar em contato!
 
+Último update: 29/01/2022 - Aula 1, dia 52
+
 ---
 
 Autor: Bruno Nonogaki  

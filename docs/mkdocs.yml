@@ -42,6 +42,7 @@ nav:
       - 08. Bloqueando endpoints: 07_Autenticacao_Autorizacao/08_Bloqueando_Endpoints.md
       - 09. Bloqueando endpoints baseado em Resources: 07_Autenticacao_Autorizacao/09_Bloqueando_por_resources.md
       - 10. Criando usuários privilegiados: 07_Autenticacao_Autorizacao/10_Usuarios_privilegiados.md
+      - 11. Filtrando o output: 07_Autenticacao_Autorizacao/11_Filtrando_output.md
 theme:
   name: material
   palette:
