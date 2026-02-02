@@ -1,8 +1,10 @@
 import { createRouter } from "next-connect";
 import database from "infra/database.js";
 import controller from "infra/controller.js";
+import authorization from "models/authorization.js";
 
 const router = createRouter();
+router.use(controller.injectAnonymousOrUser); // middleware
 
 router.get(getHandler);
 
@@ -28,7 +30,9 @@ async function get_postgres_used_connections() {
 
 async function getHandler(request, response) {
   const updatedAt = new Date().toISOString();
-  response.status(200).json({
+  const userTryingToGet = request.context.user;
+
+  const rawOutput = {
     updated_at: updatedAt,
     dependencies: {
       database: {
@@ -37,5 +41,13 @@ async function getHandler(request, response) {
         opened_connections: await get_postgres_used_connections(),
       },
     },
-  });
+  };
+
+  const filteredOutput = authorization.filterOutput(
+    userTryingToGet,
+    "read:status",
+    rawOutput,
+  );
+
+  response.status(200).json(filteredOutput);
 }
