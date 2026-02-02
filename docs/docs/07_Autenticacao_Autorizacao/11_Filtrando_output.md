@@ -203,7 +203,7 @@ async function deleteHandler(request, response) {
 
 E no model:
 
-```javascript title="./models/authorization.js" hl_lines="12-24"
+```javascript title="./models/authorization.js"
 function filterOutput(user, feature, output) {
   // restante do código omitido...
 
@@ -250,7 +250,7 @@ async function patchHandler(request, response) {
 
 E no model:
 
-```javascript title="./models/authorization.js" hl_lines="12-24"
+```javascript title="./models/authorization.js"
 function filterOutput(user, feature, output) {
   // restante do código omitido...
 
