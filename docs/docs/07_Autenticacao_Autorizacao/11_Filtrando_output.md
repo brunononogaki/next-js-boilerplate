@@ -400,22 +400,22 @@ async function getHandler(request, response) {
 E o filtro ficará assim:
 
 ```javascript title="./models/authorization.js"
-  if (feature === "read:status") {
-    const base_output = {
-      updated_at: output.updated_at,
-      dependencies: {
-        database: {
-          max_connections: output.dependencies.database.max_connections,
-          opened_connections: output.dependencies.database.opened_connections,
-        },
+if (feature === "read:status") {
+  const base_output = {
+    updated_at: output.updated_at,
+    dependencies: {
+      database: {
+        max_connections: output.dependencies.database.max_connections,
+        opened_connections: output.dependencies.database.opened_connections,
       },
-    };
+    },
+  };
 
-    if (can(user, "read:status:all")) {
-      base_output.dependencies.database.version =
-        output.dependencies.database.version;
-    }
-
-    return base_output;
+  if (can(user, "read:status:all")) {
+    base_output.dependencies.database.version =
+      output.dependencies.database.version;
   }
+
+  return base_output;
+}
 ```
