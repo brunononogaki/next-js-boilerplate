@@ -7,7 +7,7 @@ Sinta-se à vontade para explorar, sugerir melhorias ou entrar em contato!
 
 !!! info
 
-    Último update: 02/02/2022
+    Último update: 02/02/2026
 
     Dia 52 - Aula 03
 
