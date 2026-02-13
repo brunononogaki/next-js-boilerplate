@@ -7,9 +7,9 @@ Sinta-se à vontade para explorar, sugerir melhorias ou entrar em contato!
 
 !!! info
 
-    Último update: 11/02/2026
+    Último update: 13/02/2026
 
-    Dia 52 - Aula 04 (final)
+    Dia 53 - Aula 01 (Atualizar Node.js para 24 LTS)
 
 ---
 

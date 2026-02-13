@@ -77,7 +77,7 @@ commitlint:
 
     - uses: actions/setup-node@v4
       with:
-        node-version: "lts/hydrogen"
+        node-version-file: "package.json"
 
     - run: npm ci
 
