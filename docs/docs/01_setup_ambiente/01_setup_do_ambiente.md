@@ -5,17 +5,18 @@ Vamos começar o setup do NextJS no nosso ambiente local
 ```bash
 nvm ls
 
-# Instalando a versão LTS Hydrogen
-nvm install lts/hydrogen
+# Instalando a versão 24 do Node
+nvm install 24
 
 # Definindo essa versão com o a default
-nvm alias default lts/hydrogen
+nvm alias default 24
 ```
 
 Para definir essa versão padrão dentro do projeto:
 
 ```bash title=".nvmrc"
-lts/hydrogen
+24
+
 ```
 
 ## Criando o projeto e instalando dependências
@@ -33,7 +34,7 @@ npm install react-dom@18.2.0
 
 Isso vai criar um arquivo `package.json` assim:
 
-```javascript
+```javascript title="./package.json"
 {
   "name": "teste_next",
   "version": "1.0.0",
@@ -52,9 +53,17 @@ Isso vai criar um arquivo `package.json` assim:
 }
 ```
 
+É interessante definirmos aqui no `package.json` a versão do Node para o projeto:
+```javascript title="./package.json"
+  // .. restante do arquivo
+  "engines": {
+    "node": "24"
+  }
+```
+
 Vamos adicionar o nosso primeiro script e apagar esse de "test" que ele criou automaticamente
 
-```javascript
+```javascript title="./package.json"
 "scripts": {
   "dev": "next dev",
 }

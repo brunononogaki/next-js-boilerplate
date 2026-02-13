@@ -22,7 +22,7 @@ jobs:
       # Faz o setup de um ambiente Node, através de uma action chamada setup-node
       - uses: actions/setup-node@v4
         with:
-          node-version: "lts/hydrogen"
+          node-version-file: "package.json"
 
       # O npm ci usa estritamente o que está no package-lock.json, diferente do npm install que pode pegar pacotes atualizados, e aí os ambiente de teste poderia mudar com o tempo
       - run: npm ci
@@ -75,7 +75,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "lts/hydrogen"
+          node-version-file: "package.json"
 
       - run: npm ci
 
@@ -170,7 +170,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "lts/hydrogen"
+          node-version-file: "package.json"
 
       - run: npm ci
 
@@ -184,7 +184,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "lts/hydrogen"
+          node-version-file: "package.json"
 
       - run: npm ci
 
