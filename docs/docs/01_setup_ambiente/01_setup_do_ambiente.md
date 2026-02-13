@@ -54,6 +54,7 @@ Isso vai criar um arquivo `package.json` assim:
 ```
 
 É interessante definirmos aqui no `package.json` a versão do Node para o projeto:
+
 ```javascript title="./package.json"
   // .. restante do arquivo
   "engines": {
