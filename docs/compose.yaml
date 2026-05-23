@@ -5,11 +5,19 @@ services:
     labels:
       # Traefik configuration
       - "traefik.enable=true"
+      # HTTPS router com Let's Encrypt
       - "traefik.http.routers.mkdocs.rule=Host(`mkdocs.brunononogaki.com`)"
       - "traefik.http.routers.mkdocs.entrypoints=websecure"
       - "traefik.http.routers.mkdocs.tls=true"
+      - "traefik.http.routers.mkdocs.tls.certresolver=letsencrypt"
       - "traefik.http.services.mkdocs.loadbalancer.server.port=8000"
       - "traefik.docker.network=my-network"
+      # HTTP router com redirect para HTTPS
+      - "traefik.http.routers.mkdocs-http.rule=Host(`mkdocs.brunononogaki.com`)"
+      - "traefik.http.routers.mkdocs-http.entrypoints=web"
+      - "traefik.http.routers.mkdocs-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
     volumes:
       - ./:/docs
     networks:
