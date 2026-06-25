@@ -67,3 +67,12 @@ E agora vamos adicionar as variáveis de ambiente na Vercel. Na interface da Res
 E na Vercel vai ficar assim:
 
 ![alt text](static/email_vars.png)
+
+## Testando
+
+Agora podemos testar a criação de um novo usuário via API (Postman), e confirmar que o e-mail vai chegar na sua caixa:
+![alt text](static/email_test_staging.png)
+
+!!! success
+
+    Sucesso! Nosso app já está enviando e-mails de verdade!

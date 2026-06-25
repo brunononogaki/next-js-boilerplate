@@ -9,7 +9,7 @@ beforeAll(async () => {
 describe("Test infra/email.js", () => {
   test("send()", async () => {
     await email.send({
-      from: "MeuBonsai <ontato@naquelesdias.com.br>",
+      from: "NaquelesDias <contato@naquelesdias.com.br>",
       to: "contato@brunononogaki.com",
       subject: "Teste de email",
       text: "Text de corpo",
@@ -17,14 +17,14 @@ describe("Test infra/email.js", () => {
     });
 
     await email.send({
-      from: "MeuBonsai <ontato@naquelesdias.com.br>",
+      from: "NaquelesDias <contato@naquelesdias.com.br>",
       to: "contato@brunononogaki.com",
       subject: "Último email enviado",
       text: "Text de corpo",
     });
 
     const lastEmail = await orchestrator.getLastEmail();
-    expect(lastEmail.sender).toBe("<ontato@naquelesdias.com.br>");
+    expect(lastEmail.sender).toBe("<contato@naquelesdias.com.br>");
     expect(lastEmail.recipients[0]).toBe("<contato@brunononogaki.com>");
     expect(lastEmail.subject).toBe("Último email enviado");
     expect(lastEmail.text).toBe("Text de corpo\n");
