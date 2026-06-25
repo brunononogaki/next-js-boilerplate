@@ -44,6 +44,7 @@ nav:
       - 10. Criando usuários privilegiados: 07_Autenticacao_Autorizacao/10_Usuarios_privilegiados.md
       - 11. Filtrando o output: 07_Autenticacao_Autorizacao/11_Filtrando_output.md
       - 12. Validando entrada do model autorization: 07_Autenticacao_Autorizacao/12_Validacao_campos.md
+      - 13. Integrando serviço de e-mail: 07_Autenticacao_Autorizacao/13_Integrando_email_resend.md
 theme:
   name: material
   palette:
