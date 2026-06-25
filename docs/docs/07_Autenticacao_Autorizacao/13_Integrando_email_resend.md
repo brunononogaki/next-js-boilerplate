@@ -10,7 +10,6 @@ Uma vez adicionado o domínio, a Resend já vai gerar os registros DNS que terem
 
 ![alt text](static/resend2.png)
 
-
 ## Criando os registros DNS
 
 Agora vamos criar os registros TXT para DKIM, SPF e DMARC, além do registro MX. Resumidamente:
@@ -29,7 +28,7 @@ De qualquer forma, vamos criar esses registros no nosso provedor de DNS:
 E para validar se o registro foi criado com sucesso, podemos fazer um teste com o dig:
 
 ```
-dig send.naquelesdias.com.br TXT 
+dig send.naquelesdias.com.br TXT
 
 ; <<>> DiG 9.10.6 <<>> send.naquelesdias.com.br TXT
 ;; global options: +cmd
