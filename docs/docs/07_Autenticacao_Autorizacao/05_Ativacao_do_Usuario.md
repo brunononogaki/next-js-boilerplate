@@ -155,9 +155,9 @@ Agora vamos nos focar no teste `Receive activation email`, que ainda está em br
 // ...
 test("Receive activation email", async () => {
   const lastEmail = await orchestrator.getLastEmail();
-  expect(lastEmail.sender).toBe("<contato@meubonsai.app>");
+  expect(lastEmail.sender).toBe("<ontato@naquelesdias.com.br>");
   expect(lastEmail.recipients[0]).toBe("<registration.flow@email.com>");
-  expect(lastEmail.subject).toBe("Ative seu cadastro no MeuBonsai.App");
+  expect(lastEmail.subject).toBe("Ative seu cadastro no NaquelesDias.com.br");
   expect(lastEmail.text).toContain("RegistrationFlow");
 });
 ```
@@ -191,9 +191,9 @@ import email from "infra/email.js";
 
 async function sendEmailToUser(user) {
   await email.send({
-    from: "Contato <contato@meubonsai.app>",
+    from: "Contato <ontato@naquelesdias.com.br>",
     to: user.email,
-    subject: "Ative seu cadastro no MeuBonsai.App",
+    subject: "Ative seu cadastro no NaquelesDias.com.br",
     text: `${user.username}, clique no link abaixo para ativar seu cadastro no MeuBonsai.App
 
 https://link
@@ -336,9 +336,9 @@ import email from "infra/email.js";
 
 async function sendEmailToUser(user, activationToken) {
   await email.send({
-    from: "Contato <contato@meubonsai.app>",
+    from: "Contato <ontato@naquelesdias.com.br>",
     to: user.email,
-    subject: "Ative seu cadastro no MeuBonsai.App",
+    subject: "Ative seu cadastro no NaquelesDias.com.br",
     text: `${user.username}, clique no link abaixo para ativar seu cadastro no MeuBonsai.App
 
 https://meubonsai.app/cadastro/ativar/${activationToken.id}
@@ -444,9 +444,9 @@ describe("Use case: Registration Flow (all successful)", () => {
 
   test("Receive activation email", async () => {
     const lastEmail = await orchestrator.getLastEmail();
-    expect(lastEmail.sender).toBe("<contato@meubonsai.app>");
+    expect(lastEmail.sender).toBe("<ontato@naquelesdias.com.br>");
     expect(lastEmail.recipients[0]).toBe("<registration.flow@email.com>");
-    expect(lastEmail.subject).toBe("Ative seu cadastro no MeuBonsai.App");
+    expect(lastEmail.subject).toBe("Ative seu cadastro no NaquelesDias.com.br");
     expect(lastEmail.text).toContain("RegistrationFlow");
 
     const activationTokenId = orchestrator.extractUUID(lastEmail.text);

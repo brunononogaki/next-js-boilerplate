@@ -30,9 +30,9 @@ async function create(userId) {
 
 async function sendEmailToUser(user, activationToken) {
   await email.send({
-    from: "Contato <contato@meubonsai.app>",
+    from: "Contato <ontato@naquelesdias.com.br>",
     to: user.email,
-    subject: "Ative seu cadastro no MeuBonsai.App",
+    subject: "Ative seu cadastro no NaquelesDias.com.br",
     text: `${user.username}, clique no link abaixo para ativar seu cadastro no MeuBonsai.App
 
 ${webserver.getOrigin()}/cadastro/ativar/${activationToken.id}
